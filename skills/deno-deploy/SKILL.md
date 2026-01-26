@@ -1,6 +1,6 @@
 ---
 name: deno-deploy
-description: Deno Deploy deployment workflows - use when deploying Deno apps to Deno Deploy, managing environment variables, or setting up CI/CD pipelines.
+description: Deno Deploy platform knowledge and CLI commands - use when deploying apps, managing environments, configuring databases, setting up custom domains, or working with deno deploy commands.
 license: MIT
 metadata:
   author: denoland
@@ -182,6 +182,65 @@ deno deploy logs
 deno deploy logs --start 2026-01-15 --end 2026-01-16
 ```
 
+## Databases & Storage
+
+Deno Deploy provides built-in database support with **automatic environment isolation**. Each environment (production, preview, branch) gets its own isolated database automatically.
+
+### Available Options
+
+| Engine | Use Case |
+|--------|----------|
+| **Deno KV** | Key-value storage, simple data, counters, sessions |
+| **PostgreSQL** | Relational data, complex queries, existing Postgres apps |
+
+### Deno KV Quick Start
+
+No configuration needed - just use the built-in API:
+
+```typescript
+const kv = await Deno.openKv();
+
+// Store data
+await kv.set(["users", "alice"], { name: "Alice", role: "admin" });
+
+// Retrieve data
+const user = await kv.get(["users", "alice"]);
+console.log(user.value); // { name: "Alice", role: "admin" }
+
+// List by prefix
+for await (const entry of kv.list({ prefix: ["users"] })) {
+  console.log(entry.key, entry.value);
+}
+```
+
+Deno Deploy automatically connects to the correct database based on your environment.
+
+### PostgreSQL
+
+For PostgreSQL, Deno Deploy injects environment variables (`DATABASE_URL`, `PGHOST`, etc.) that most libraries detect automatically:
+
+```typescript
+import postgres from "npm:postgres";
+const sql = postgres(); // Reads DATABASE_URL automatically
+```
+
+### Provisioning
+
+1. Go to your organization dashboard → "Databases"
+2. Click "Provision Database"
+3. Choose Deno KV or PostgreSQL
+4. Assign to your app
+
+### Local Development
+
+Use `--tunnel` to connect to your hosted development database locally:
+
+```bash
+deno task --tunnel dev
+```
+
+See [Databases](references/DATABASES.md) and [Deno KV](references/DENO_KV.md) for detailed documentation.
+
 ## Local Development Tunnel
 
 The tunnel feature lets you expose your local development server to the internet. This is useful for:
@@ -251,12 +310,22 @@ Deno Deploy runs in one or many regions (globally distributed). Keep in mind:
 ## Additional References
 
 - [Authentication](references/AUTHENTICATION.md) - Interactive and CI/CD authentication
+- [Databases](references/DATABASES.md) - Database provisioning and connections
+- [Deno KV](references/DENO_KV.md) - Key-value storage API and examples
+- [Domains](references/DOMAINS.md) - Custom domains and SSL certificates
 - [Frameworks](references/FRAMEWORKS.md) - Framework-specific deployment guides
+- [Organizations](references/ORGANIZATIONS.md) - Managing orgs and members
+- [Runtime](references/RUNTIME.md) - Lifecycle, cold starts, and limitations
 - [Troubleshooting](references/TROUBLESHOOTING.md) - Common issues and solutions
 
 ## Documentation
 
 - Official docs: https://docs.deno.com/deploy/
 - CLI reference: https://docs.deno.com/runtime/reference/cli/deploy/
+- Databases: https://docs.deno.com/deploy/reference/databases/
+- Deno KV: https://docs.deno.com/deploy/reference/deno_kv/
+- Domains: https://docs.deno.com/deploy/reference/domains/
 - Environment variables & contexts: https://docs.deno.com/deploy/reference/env_vars_and_contexts/
-- Tunnel reference: https://docs.deno.com/deploy/reference/tunnel/
+- Organizations: https://docs.deno.com/deploy/reference/organizations/
+- Runtime: https://docs.deno.com/deploy/reference/runtime/
+- Tunnel: https://docs.deno.com/deploy/reference/tunnel/
