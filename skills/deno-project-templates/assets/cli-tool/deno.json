@@ -1,0 +1,13 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "exports": "./main.ts",
+  "tasks": {
+    "dev": "deno run --allow-all main.ts",
+    "compile": "deno compile --allow-all -o {{PROJECT_NAME}} main.ts"
+  },
+  "imports": {
+    "@std/cli": "jsr:@std/cli@^1",
+    "@std/fmt": "jsr:@std/fmt@^1"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "dev": "deno run --watch --allow-net main.ts",
+    "start": "deno run --allow-net main.ts"
+  },
+  "imports": {
+    "@std/http": "jsr:@std/http@^1"
+  }
+}

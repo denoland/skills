@@ -1,0 +1,9 @@
+{
+  "name": "deno-skills",
+  "displayName": "Deno Development Skills",
+  "description": "Modern Deno development knowledge including JSR packages, Fresh framework, Deno Deploy, and best practices",
+  "version": "1.0.0",
+  "author": "Deno Land",
+  "license": "MIT",
+  "repository": "https://github.com/denoland/skills"
+}
