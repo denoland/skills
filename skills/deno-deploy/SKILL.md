@@ -114,6 +114,39 @@ Or configure in `deno.json`:
 
 ## Environment Variables
 
+### Contexts
+
+Deno Deploy has three "contexts" - logical environments where your code runs, each with its own set of variables:
+
+| Context | Purpose |
+|---------|---------|
+| **Production** | Live traffic on your production URL |
+| **Development** | Preview deployments and branch URLs |
+| **Build** | Only available during the build process |
+
+You can set different values for the same variable in each context. For example, you might use a test database URL in Development and the real one in Production.
+
+### Predefined Variables
+
+These are automatically available in your code:
+
+| Variable | Description |
+|----------|-------------|
+| `DENO_DEPLOY` | Always `1` when running on Deno Deploy |
+| `DENO_DEPLOYMENT_ID` | Unique ID for the current deployment |
+| `DENO_DEPLOY_ORG_ID` | Your organization's ID |
+| `DENO_DEPLOY_APP_ID` | Your application's ID |
+| `CI` | Set to `1` during builds only |
+
+### Accessing Variables in Code
+
+```typescript
+const dbUrl = Deno.env.get("DATABASE_URL");
+const isDenoDeploy = Deno.env.get("DENO_DEPLOY") === "1";
+```
+
+### Managing Variables via CLI
+
 ```bash
 # Add a variable
 deno deploy env add DATABASE_URL "postgres://..."
@@ -128,6 +161,17 @@ deno deploy env delete DATABASE_URL
 deno deploy env load .env.production
 ```
 
+### Variable Types
+
+- **Plain text** - Visible in the dashboard, good for feature flags and non-sensitive config
+- **Secrets** - Hidden after creation, only readable in your code, use for API keys and credentials
+
+### Limits
+
+- Key names: max 128 bytes
+- Values: max 16 KB
+- Keys cannot start with `DENO_`, `LD_`, or `OTEL_`
+
 ## Viewing Logs
 
 ```bash
@@ -137,6 +181,50 @@ deno deploy logs
 # Filter by date range
 deno deploy logs --start 2026-01-15 --end 2026-01-16
 ```
+
+## Local Development Tunnel
+
+The tunnel feature lets you expose your local development server to the internet. This is useful for:
+
+- **Testing webhooks** - Receive webhook callbacks from external services
+- **Sharing with teammates** - Let others preview your local work
+- **Mobile testing** - Access your local server from other devices
+
+### Basic Usage
+
+Add the `--tunnel` flag when running your app:
+
+```bash
+deno run --tunnel -A main.ts
+```
+
+The first time you run this, it will:
+1. Ask you to authenticate with Deno Deploy (opens a browser)
+2. Ask you to select which app to connect the tunnel to
+3. Generate a public URL that forwards requests to your local server
+
+### Using with Tasks
+
+You can use `--tunnel` with your existing tasks in `deno.json`:
+
+```bash
+deno task --tunnel dev
+```
+
+This runs your `dev` task with the tunnel enabled.
+
+### What the Tunnel Provides
+
+Beyond just forwarding requests, the tunnel also:
+
+- **Syncs environment variables** - Variables set in your Deno Deploy app's "Local" context become available to your local process
+- **Sends logs and metrics** - OpenTelemetry data goes to the Deno Deploy dashboard (filter with `context:local`)
+- **Connects to databases** - Automatically connects to your assigned local development databases
+
+### Managing Tunnels
+
+- View active tunnels in the Deno Deploy dashboard under the "Tunnels" tab
+- Stop a tunnel by terminating the Deno process (Ctrl+C)
 
 ## Command Reference
 
@@ -149,14 +237,15 @@ deno deploy logs --start 2026-01-15 --end 2026-01-16
 | `deno deploy env list` | List environment variables |
 | `deno deploy env delete <var>` | Delete environment variable |
 | `deno deploy logs` | View deployment logs |
+| `deno run --tunnel -A <file>` | Start local tunnel |
+| `deno task --tunnel <task>` | Run task with tunnel |
 
 ## Edge Runtime Notes
 
-Deno Deploy runs on the edge (globally distributed). Keep in mind:
+Deno Deploy runs in one or many regions (globally distributed). Keep in mind:
 
-- **No persistent filesystem** - Use Deno KV for storage
 - **Environment variables** - Must be set via `deno deploy env`, not .env files at runtime
-- **Global distribution** - Code runs at the edge closest to users
+- **Global distribution** - Code runs at the region closest to users
 - **Cold starts** - First request after idle may be slightly slower
 
 ## Additional References
@@ -169,3 +258,5 @@ Deno Deploy runs on the edge (globally distributed). Keep in mind:
 
 - Official docs: https://docs.deno.com/deploy/
 - CLI reference: https://docs.deno.com/runtime/reference/cli/deploy/
+- Environment variables & contexts: https://docs.deno.com/deploy/reference/env_vars_and_contexts/
+- Tunnel reference: https://docs.deno.com/deploy/reference/tunnel/
