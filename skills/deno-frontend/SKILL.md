@@ -186,13 +186,10 @@ Fresh 2.0 uses Vite for builds, which means Tailwind integrates via the Vite plu
 
 ### Setup
 
-In `deno.json`:
-```json
-{
-  "imports": {
-    "@tailwindcss/vite": "npm:@tailwindcss/vite"
-  }
-}
+Add the dependency to the deno.json:
+
+```sh
+deno add npm:@tailwindcss/vite
 ```
 
 In `vite.config.ts`:
