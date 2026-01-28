@@ -62,6 +62,21 @@ deno deploy --prod
 
 **If NO deploy config exists:**
 
+**IMPORTANT: Ask the user first** - Do they have an existing app on Deno Deploy, or do they need to create a new one?
+
+**If they have an existing app**, add the config directly to deno.json:
+```json
+{
+  "deploy": {
+    "org": "<ORG_NAME>",
+    "app": "<APP_NAME>"
+  }
+}
+```
+The org name is in the Deno Deploy console URL (e.g., `console.deno.com/your-org-name`).
+
+**If they need to create a new app:**
+
 The CLI needs an organization name. Find it at https://console.deno.com - the org is in the URL path (e.g., `console.deno.com/your-org-name`).
 
 Then create the app:
