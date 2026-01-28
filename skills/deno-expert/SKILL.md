@@ -99,7 +99,7 @@ import * as oak from "@oak/oak";
 import { join } from "https://deno.land/std/path/mod.ts";
 ```
 
-Install with:
+Instead, install with:
 
 ```sh
 deno add jsr:@std/path
