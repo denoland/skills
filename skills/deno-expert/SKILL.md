@@ -85,7 +85,7 @@ Encourage using Deno's integrated tooling:
 import * as oak from "https://deno.land/x/oak@v17.2.0/mod.ts";
 ```
 
-Find the dependency on jsr.io then suggest running `deno add jsr:@oak/oak` then use the bare specifier:
+Find the dependency on jsr.io, suggest running `deno add jsr:@oak/oak`, then use the bare specifier:
 
 ```ts
 // Suggest this
