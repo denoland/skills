@@ -1,10 +1,10 @@
 ---
 name: deno-frontend
-description: Use when building web UIs with Fresh framework, using Preact components, or adding Tailwind CSS styling in Deno. Covers island architecture, routing, and component patterns.
+description: Use when building web UIs with Fresh 2.x framework, using Preact components, or adding Tailwind CSS styling in Deno. Covers Fresh handlers, routes, createDefine, PageProps, context patterns, islands, and TypeScript types. Essential for Fresh 2.x vs 1.x differences.
 license: MIT
 metadata:
   author: denoland
-  version: "2.0"
+  version: "2.1"
 ---
 
 # Deno Frontend Development
