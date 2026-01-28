@@ -46,10 +46,21 @@ When adding dependencies, follow this priority order:
 
 The Deno standard library lives at `@std/` on JSR:
 
+```jsonc
+// deno.json
+{
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/http": "jsr:@std/http@1",
+    "@std/path": "jsr:@std/path@1"
+  }
+}
+```
+
 ```typescript
-import { serve } from "jsr:@std/http";
-import { join } from "jsr:@std/path";
-import { assertEquals } from "jsr:@std/assert";
+import { serve } from "@std/http";
+import { join } from "@std/path";
+import { assertEquals } from "@std/assert";
 ```
 
 Never use `https://deno.land/std/` - always use `jsr:@std/*`.
@@ -91,11 +102,19 @@ In `deno.json`, you can exclude directories from formatting/linting:
 ```json
 {
   "fmt": {
-    "exclude": ["build/", "node_modules/"]
+    "exclude": ["build/"]
   },
   "lint": {
-    "exclude": ["build/", "node_modules/"]
+    "exclude": ["build/"]
   }
+}
+```
+
+A folder can also be excluded from everything at the top level:
+
+```json
+{
+  "exclude": ["build/"]
 }
 ```
 
@@ -132,13 +151,28 @@ When more information is needed:
 ## Common Mistakes
 
 **Using `deno.land/x` instead of JSR**
+
 ```typescript
 // ❌ Wrong - deprecated registry
 import { serve } from "https://deno.land/x/http/mod.ts";
-
-// ✅ Correct - use JSR
-import { serve } from "jsr:@std/http";
 ```
+
+```ts
+// ✅ Correct - use JSR and a bare specifier
+import { serve } from "@std/http";
+```
+
+```jsonc
+// deno.json
+{
+  "imports": {
+    // ensure the specifier has a version requirement
+    "@std/http": "jsr:@std/http@1"
+  }
+}
+```
+
+Inline specifiers are fine in single file scripts, but if a deno.json exists then it should go there. It's preferable to place npm dependencies in a package.json if a package.json exists.
 
 **Forgetting to run fmt/lint before committing**
 ```bash
@@ -150,15 +184,27 @@ deno fmt && deno lint && git add . && git commit -m "changes"
 ```
 
 **Using `https://deno.land/std/` for standard library**
+
 ```typescript
 // ❌ Wrong - old URL
 import { join } from "https://deno.land/std/path/mod.ts";
+```
 
-// ✅ Correct - JSR standard library
-import { join } from "jsr:@std/path";
+Instead, install with:
+
+```sh
+deno add jsr:@std/path
+```
+
+Then use the bare import:
+
+```ts
+// suggest this
+import { join } from "@std/path";
 ```
 
 **Running code without permission flags**
+
 ```bash
 # ❌ Confusing error - "Requires net access"
 deno run server.ts
@@ -168,6 +214,7 @@ deno run --allow-net server.ts
 ```
 
 **Not using `deno add` for dependencies**
+
 ```bash
 # ❌ Manually editing imports without updating deno.json
 # (works, but misses lockfile benefits)

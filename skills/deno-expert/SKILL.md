@@ -79,22 +79,63 @@ Encourage using Deno's integrated tooling:
 ## Common Anti-Patterns to Flag
 
 ### Wrong: deno.land/x imports
-```typescript
-// Flag this
-import { serve } from "https://deno.land/x/http/mod.ts";
 
+```ts
+// Flag this
+import * as oak from "https://deno.land/x/oak@v17.2.0/mod.ts";
+```
+
+Find the dependency on jsr.io then suggest running `deno add jsr:@oak/oak` then use the bare specifier:
+
+```ts
 // Suggest this
-import { serve } from "jsr:@std/http";
+import * as oak from "@oak/oak";
 ```
 
 ### Wrong: deno.land/std imports
+
 ```typescript
 // Flag this
 import { join } from "https://deno.land/std/path/mod.ts";
-
-// Suggest this
-import { join } from "jsr:@std/path";
 ```
+
+Install with:
+
+```sh
+deno add jsr:@std/path
+```
+
+Then use the bare import:
+
+```ts
+// suggest this
+import { join } from "@std/path";
+```
+
+### Wrong: Inline absolute remote specifiers
+
+```typescript
+// Flag this
+import chalk from "npm:chalk";
+import * as oak from "jsr:@oak/oak";
+```
+
+Suggest using the bare specifier and an import with a version requirement.
+
+Run:
+
+```sh
+deno install npm:chalk
+deno install jsr:@oak/oak
+```
+
+```typescript
+// Suggest this
+import chalk from "chalk";
+import * as oak from "@oak/oak";
+```
+
+Inline specifiers are fine in single file scripts, but if a deno.json exists then it should go there. It's preferable to place npm dependencies in a package.json if a package.json exists.
 
 ### Wrong: Entire page as island
 ```tsx
@@ -143,14 +184,6 @@ Check if permissions are correct (`--allow-net`, `--allow-read`, etc.):
 deno run --allow-net server.ts
 ```
 
-### Import Errors
-Verify import specifiers are correct (`jsr:`, `npm:`):
-```typescript
-// Correct
-import { x } from "jsr:@std/http";
-import { y } from "npm:zod";
-```
-
 ### TypeScript Errors
 Check for TypeScript errors:
 ```bash
@@ -158,7 +191,8 @@ deno check main.ts
 ```
 
 ### Configuration Issues
-Review deno.json for correct configuration:
+Review deno.json for correct configuration. Ensure all `jsr:` and `npm:` specifiers have a version requirement:
+
 ```json
 {
   "imports": {
