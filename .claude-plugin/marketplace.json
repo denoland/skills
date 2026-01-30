@@ -1,0 +1,14 @@
+{
+  "name": "denoland-skills",
+  "owner": {
+    "name": "Deno Land"
+  },
+  "plugins": [
+    {
+      "name": "deno-skills",
+      "source": "./",
+      "description": "Modern Deno development knowledge including JSR packages, Fresh framework, Deno Deploy, and best practices",
+      "version": "1.0.0"
+    }
+  ]
+}

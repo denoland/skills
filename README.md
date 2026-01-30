@@ -31,7 +31,11 @@ These skills follow the [Agent Skills Specification](https://agentskills.io/spec
 **Option 1: Install as a plugin**
 
 ```bash
-/plugin install https://github.com/denoland/skills
+# Step 1: Add the marketplace
+/plugin marketplace add denoland/skills
+
+# Step 2: Install the plugin
+/plugin install deno-skills@denoland-skills
 ```
 
 **Option 2: Manual installation**
