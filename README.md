@@ -22,6 +22,33 @@ These skills enforce modern Deno practices:
 3. **Built-in tools** - Encourage `deno fmt`, `deno lint`, `deno test`, `deno doc`
 4. **Fresh patterns** - Island architecture with small, serializable-prop islands
 
+## Versioning
+
+This project uses [Semantic Versioning](https://semver.org/). When contributing changes:
+
+### When to Bump Versions
+
+| Change Type | Version Bump | Example |
+|-------------|--------------|---------|
+| Breaking changes | MAJOR (1.0 → 2.0) | Fundamentally altering how a skill works |
+| New features, significant updates | MINOR (1.1 → 1.2) | Adding new guidance, updating documentation |
+| Typo fixes, small clarifications | PATCH (1.1.0 → 1.1.1) | Fixing formatting, correcting typos |
+
+### Files to Update
+
+When making changes, update the appropriate version numbers:
+
+1. **Skill-specific changes** - Update the skill's `version` in its `SKILL.md` frontmatter
+2. **Plugin releases** - Update `version` in both:
+   - `.claude-plugin/plugin.json`
+   - `.claude-plugin/marketplace.json`
+
+### For Contributors
+
+- Include version bumps in your PRs when changing skill content
+- Use [conventional commits](https://www.conventionalcommits.org/) (e.g., `feat:`, `fix:`, `docs:`) to indicate change type
+- When in doubt, bump the MINOR version for content changes
+
 ## Installation
 
 These skills follow the [Agent Skills Specification](https://agentskills.io/specification).

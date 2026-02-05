@@ -4,7 +4,7 @@ description: Deno Deploy platform and CLI commands - deploying apps, --tunnel fl
 license: MIT
 metadata:
   author: denoland
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Deno Deploy
@@ -241,10 +241,20 @@ const sql = postgres(); // Reads DATABASE_URL automatically
 
 ### Provisioning
 
-1. Go to your organization dashboard → "Databases"
-2. Click "Provision Database"
-3. Choose Deno KV or PostgreSQL
-4. Assign to your app
+Use the `deno deploy database` command to provision and manage databases:
+
+```bash
+# Provision a Deno KV database
+deno deploy database provision my-database --kind denokv
+
+# Provision a Prisma PostgreSQL database
+deno deploy database provision my-database --kind prisma --region us-east-1
+
+# Assign to your app
+deno deploy database assign my-database --app my-app
+```
+
+For detailed CLI commands, see [Databases](references/DATABASES.md).
 
 ### Local Development
 
