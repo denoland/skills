@@ -21,19 +21,70 @@ Deno Deploy automatically creates **isolated databases for each environment**:
 
 This means your preview deployments won't accidentally modify production data.
 
-## Provisioning a Database
+## Database CLI Commands
 
-1. Go to your organization dashboard
-2. Click "Databases"
-3. Click "Provision Database"
-4. Choose your engine (Deno KV or PostgreSQL)
-5. Name it and save
+Use `deno deploy database` to manage databases from the command line.
 
-## Assigning to an App
+### List Databases
 
-1. From the database instances list, click "Assign"
-2. Select the target app
-3. Deno Deploy creates separate databases for each timeline automatically
+```bash
+# List all databases in your organization
+deno deploy database list
+
+# Search for databases by name
+deno deploy database list my-prefix
+```
+
+### Provision a Database
+
+Create a new managed database:
+
+```bash
+# Provision a new Deno KV database
+deno deploy database provision my-database --kind denokv
+
+# Provision a new Prisma PostgreSQL database (requires --region)
+deno deploy database provision my-database --kind prisma --region us-east-1
+```
+
+### Link an External Database
+
+Link an existing external postgres database by providing a connection string:
+
+```bash
+deno deploy database link my-database "postgres://user:pass@host:5432/db"
+```
+
+### Assign / Detach
+
+Connect or disconnect a database from an app:
+
+```bash
+# Assign a database to an app
+deno deploy database assign my-database --app my-app
+
+# Detach a database from an app
+deno deploy database detach my-database --app my-app
+```
+
+Deno Deploy creates separate databases for each timeline automatically.
+
+### Query a Database
+
+Run queries directly from the CLI:
+
+```bash
+deno deploy database query my-database production "SELECT * FROM users LIMIT 10"
+```
+
+The second argument is the timeline name (e.g., `production`, `preview`, or a branch name), 
+which can be found in the output of `deno deploy database list`.
+
+### Delete a Database
+
+```bash
+deno deploy database delete my-database
+```
 
 ## Connecting in Code
 
