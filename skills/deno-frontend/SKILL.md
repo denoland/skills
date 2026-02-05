@@ -4,7 +4,7 @@ description: Use when building web UIs with Fresh 2.x framework, using Preact co
 license: MIT
 metadata:
   author: denoland
-  version: "2.1"
+  version: "2.2"
 ---
 
 # Deno Frontend Development
