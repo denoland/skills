@@ -210,6 +210,62 @@ export default async function Page() {
 }
 ```
 
+## Data Fetching Patterns
+
+Fresh 2.x provides two main approaches for fetching data on the server. Choose based on your needs:
+
+### Approach A: Async Server Components (Simplest)
+
+Use this when you just need to fetch and display data. This is the **recommended default**.
+
+```tsx
+// routes/servers.tsx
+export default async function ServersPage() {
+  const servers = await db.query("SELECT * FROM servers");
+
+  return (
+    <div>
+      <h1>Servers</h1>
+      <ul>
+        {servers.map((s) => <li key={s.id}>{s.name}</li>)}
+      </ul>
+    </div>
+  );
+}
+```
+
+### Approach B: Handler with Data Object (For Auth/Redirects)
+
+Use this when you need to check authentication, perform redirects, or run logic before rendering.
+
+```tsx
+// routes/profile.tsx
+import { define } from "@/utils/state.ts";
+
+// Handler returns data via { data: {...} } object
+export const handler = define.handlers((ctx) => {
+  if (!ctx.state.user) {
+    return ctx.redirect("/login");  // Redirect if not logged in
+  }
+  return { data: { user: ctx.state.user } };  // Pass data to page
+});
+
+// Page receives typed data via define.page<typeof handler>
+export default define.page<typeof handler>(({ data }) => {
+  return <h1>Welcome, {data.user.name}!</h1>;
+});
+```
+
+### Decision Guide
+
+```
+Need to fetch data on server?
+├─ Yes: Do you need auth checks or redirects?
+│   ├─ No → Use async page component (Approach A)
+│   └─ Yes → Use handler with { data: {...} } return (Approach B)
+└─ No → Just use a regular page component
+```
+
 ## Handlers and Define Helpers (Fresh 2.x)
 
 Fresh 2.x uses a **single context parameter** pattern for handlers, unlike 1.x which used `(req, ctx)`.
@@ -251,8 +307,8 @@ export const handler = (ctx) => {
   ctx.error        // Caught error (on error pages)
 
   // Methods
-  ctx.render(<JSX />)           // Render JSX to Response
-  ctx.render(<JSX />, { status: 201, headers: {...} })
+  ctx.render(<JSX />)           // Render JSX to Response (JSX only, NOT data objects!)
+  ctx.render(<JSX />, { status: 201, headers: {...} })  // With response options
   ctx.redirect("/other")        // Redirect (302 default)
   ctx.redirect("/other", 301)   // Permanent redirect
   ctx.next()                    // Call next middleware
@@ -473,19 +529,21 @@ Benefits of signals:
 - Can be defined outside components
 - Cleaner code for shared state
 
-## Tailwind CSS in Fresh
+## Tailwind CSS in Fresh (Optional)
 
-Fresh 2.0 uses Vite for builds, which means Tailwind integrates via the Vite plugin.
+Tailwind CSS is optional—you don't need it to build a great Fresh app. However, many developers prefer it for rapid styling. Fresh 2.x uses Vite for builds, so Tailwind integrates via the Vite plugin.
 
 ### Setup
 
-Add the dependency to the deno.json:
+Install both Tailwind packages:
 
 ```sh
-deno add npm:@tailwindcss/vite
+deno add npm:@tailwindcss/vite npm:tailwindcss
 ```
 
-In `vite.config.ts`:
+**Important:** You need both packages. `@tailwindcss/vite` is the Vite plugin, and `tailwindcss` is the core library it depends on.
+
+Configure Vite in `vite.config.ts`:
 ```typescript
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -493,6 +551,16 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [tailwindcss()],
 });
+```
+
+Add the Tailwind import to your CSS file (e.g., `assets/styles.css`):
+```css
+@import "tailwindcss";
+```
+
+Then import this CSS file in your `client.ts`:
+```typescript
+import "./assets/styles.css";
 ```
 
 ### Usage
@@ -616,6 +684,41 @@ ctx.render(<MyComponent />)
 ctx.config.basePath
 ```
 
+**Passing data from handlers to pages (VERY COMMON MISTAKE)**
+
+This is a frequent error. In Fresh 2.x, you cannot pass data through `ctx.render()`.
+
+```tsx
+// ❌ WRONG - Cannot pass data through ctx.render()
+export const handler = define.handlers(async (ctx) => {
+  const servers = await getServers();
+  return ctx.render({ servers });  // This doesn't work!
+});
+
+// ❌ WRONG - ctx.render() has no type parameters
+return ctx.render<HomeData>({ servers });
+
+// ❌ WRONG - define.page doesn't take custom data type parameters
+export default define.page<MyDataType>(({ data }) => ...);
+
+// ✅ CORRECT - Return object with data property from handler
+export const handler = define.handlers(async (ctx) => {
+  const servers = await getServers();
+  return { data: { servers } };  // Return { data: {...} } object
+});
+
+// ✅ CORRECT - Link page to handler type with typeof
+export default define.page<typeof handler>(({ data }) => {
+  return <ul>{data.servers.map((s) => <li>{s.name}</li>)}</ul>;
+});
+
+// ✅ ALSO CORRECT - Use async page component (simpler when no auth/redirects needed)
+export default async function ServersPage() {
+  const servers = await getServers();
+  return <ul>{servers.map((s) => <li>{s.name}</li>)}</ul>;
+}
+```
+
 **Old task commands in deno.json**
 ```json
 // ❌ WRONG - Fresh 1.x tasks
@@ -722,6 +825,19 @@ import tailwind from "jsr:@fresh/plugin-tailwindcss";
 // ✅ CORRECT - Fresh 2.x uses Vite Tailwind plugin
 import tailwindcss from "@tailwindcss/vite";
 ```
+
+**Missing tailwindcss package**
+```sh
+# Error: Can't resolve 'tailwindcss' in '/path/to/assets'
+
+# ❌ WRONG - Only installed the Vite plugin
+deno add npm:@tailwindcss/vite
+
+# ✅ CORRECT - Install both packages
+deno add npm:@tailwindcss/vite npm:tailwindcss
+```
+
+The `@tailwindcss/vite` plugin requires the core `tailwindcss` package to be installed separately.
 
 ## Migrating from Fresh 1.x to 2.x
 
