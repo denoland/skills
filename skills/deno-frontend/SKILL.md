@@ -4,7 +4,7 @@ description: Use when building web UIs with Fresh 2.x framework, using Preact co
 license: MIT
 metadata:
   author: denoland
-  version: "2.2"
+  version: "2.3"
 ---
 
 # Deno Frontend Development
@@ -24,29 +24,27 @@ This skill covers frontend development in Deno using Fresh 2.x (Deno's web frame
 
 Apply these practices when building web applications in Deno.
 
+## Scope Boundaries
+
+This skill applies **only** to Fresh/Deno frontend questions. Follow these rules:
+
+- If the user asks about **Next.js, React Native, Vue, Svelte, Angular, or any other framework**, answer using that framework directly. Do not suggest Fresh alternatives.
+- Do not include Fresh imports, `useSignal`, island patterns, or Fresh project structure in responses about other frameworks.
+- Only recommend Fresh when the user explicitly asks about Fresh or is working in a Fresh/Deno project.
+
 ## CRITICAL: Fresh 2.x vs 1.x
 
 **Always use Fresh 2.x patterns.** Fresh 1.x is deprecated. Key differences:
 
-| Fresh 1.x (Deprecated) | Fresh 2.x (Current) |
-|------------------------|---------------------|
-| `$fresh/server.ts` imports | `import { App } from "fresh"` |
-| `fresh.gen.ts` manifest file | No manifest file needed |
-| `dev.ts` entry point | `vite.config.ts` for dev |
-| `fresh.config.ts` | Config via `new App()` |
-| `handler(req, ctx)` two params | `handler(ctx)` single param |
-| Separate `_404.tsx`/`_500.tsx` | Unified `_error.tsx` |
+- Fresh 2.x uses `import { App } from "fresh"` — the old dollar-sign import paths are deprecated
+- Fresh 2.x has no manifest file — the old auto-generated manifest is no longer needed
+- Fresh 2.x uses `vite.config.ts` for dev — the old `dev.ts` entry point is gone
+- Fresh 2.x configures via `new App()` — the old config file is no longer used
+- Fresh 2.x handlers take a single `(ctx)` parameter — the old two-parameter `(req, ctx)` signature is deprecated
+- Fresh 2.x uses a unified `_error.tsx` — the old separate 404/500 error pages are replaced
 
-**NEVER use these outdated imports:**
+**Always use Fresh 2.x stable imports:**
 ```typescript
-// ❌ WRONG - Fresh 1.x patterns
-import { Handlers, PageProps } from "$fresh/server.ts";
-import { Head } from "$fresh/runtime.ts";
-import manifest from "./fresh.gen.ts";
-
-// ❌ WRONG - Alpha versions (outdated)
-import { App } from "jsr:@fresh/core@2.0.0-alpha.1";
-
 // ✅ CORRECT - Fresh 2.x stable
 import { App, staticFiles } from "fresh";
 import { define } from "./utils/state.ts"; // Project-local define helpers
@@ -89,7 +87,7 @@ my-project/
     └── state.ts        # Define helpers for type safety
 ```
 
-**Note:** Fresh 2.x does NOT have `fresh.gen.ts`, `dev.ts`, or `fresh.config.ts`.
+**Note:** Fresh 2.x does not use a manifest file, a separate dev entry point, or a separate config file.
 
 ### main.ts (Fresh 2.x Entry Point)
 
@@ -626,30 +624,20 @@ deno deploy --prod        # Deploy to production
 ### Using Fresh 1.x Patterns (Most Common LLM Error)
 
 **Using old import specifiers**
+
+The old dollar-sign Fresh import paths and alpha version imports are deprecated. Always use the stable `fresh` package:
+
 ```tsx
-// ❌ WRONG - Fresh 1.x imports (deprecated)
-import { Handlers, PageProps } from "$fresh/server.ts";
-import { Head } from "$fresh/runtime.ts";
-import manifest from "./fresh.gen.ts";
-
-// ❌ WRONG - Alpha version imports (outdated APIs)
-import { App } from "jsr:@fresh/core@2.0.0-alpha.1";
-import { App } from "jsr:@fresh/core@2.0.0-alpha.22";
-
 // ✅ CORRECT - Fresh 2.x stable imports
 import { App, staticFiles } from "fresh";
 import type { PageProps } from "fresh";
 ```
 
 **Using two-parameter handlers**
-```tsx
-// ❌ WRONG - Fresh 1.x handler signature
-export const handler: Handlers = {
-  GET(req, ctx) {  // Two params is 1.x!
-    return ctx.render();
-  }
-};
 
+The old two-parameter `(req, ctx)` handler signature is deprecated. Fresh 2.x uses a single context parameter:
+
+```tsx
 // ✅ CORRECT - Fresh 2.x uses single context parameter
 export const handler = {
   GET(ctx) {  // Single ctx param
@@ -658,26 +646,21 @@ export const handler = {
 };
 ```
 
-**Creating fresh.gen.ts or dev.ts files**
-```
-// ❌ WRONG - These files don't exist in Fresh 2.x
-fresh.gen.ts
-dev.ts
-fresh.config.ts
+**Creating legacy files**
 
-// ✅ CORRECT - Fresh 2.x file structure
+Fresh 2.x does not use a manifest file, a separate dev entry point, or a separate config file. The correct Fresh 2.x file structure is:
+
+```
 main.ts           # Server entry
 client.ts         # Client entry
 vite.config.ts    # Vite config
 ```
 
 **Using deprecated context methods**
-```tsx
-// ❌ WRONG - Fresh 1.x patterns
-ctx.renderNotFound()
-ctx.render()  // without JSX in handlers
-ctx.basePath
 
+The old `renderNotFound()`, bare `render()` without JSX, and `basePath` patterns are deprecated. Use these Fresh 2.x patterns instead:
+
+```tsx
 // ✅ CORRECT - Fresh 2.x patterns
 throw new HttpError(404)
 ctx.render(<MyComponent />)
@@ -686,21 +669,9 @@ ctx.config.basePath
 
 **Passing data from handlers to pages (VERY COMMON MISTAKE)**
 
-This is a frequent error. In Fresh 2.x, you cannot pass data through `ctx.render()`.
+This is a frequent error. In Fresh 2.x, you cannot pass data through `ctx.render()`. Instead, return an object with a `data` property from the handler:
 
 ```tsx
-// ❌ WRONG - Cannot pass data through ctx.render()
-export const handler = define.handlers(async (ctx) => {
-  const servers = await getServers();
-  return ctx.render({ servers });  // This doesn't work!
-});
-
-// ❌ WRONG - ctx.render() has no type parameters
-return ctx.render<HomeData>({ servers });
-
-// ❌ WRONG - define.page doesn't take custom data type parameters
-export default define.page<MyDataType>(({ data }) => ...);
-
 // ✅ CORRECT - Return object with data property from handler
 export const handler = define.handlers(async (ctx) => {
   const servers = await getServers();
@@ -720,16 +691,10 @@ export default async function ServersPage() {
 ```
 
 **Old task commands in deno.json**
-```json
-// ❌ WRONG - Fresh 1.x tasks
-{
-  "tasks": {
-    "dev": "deno run -A dev.ts",
-    "build": "deno run -A dev.ts build",
-    "preview": "deno run -A main.ts"
-  }
-}
 
+The old task commands that reference `dev.ts` are deprecated. Use the Vite-based tasks:
+
+```json
 // ✅ CORRECT - Fresh 2.x tasks
 {
   "tasks": {
@@ -818,10 +783,10 @@ export default function StaticCard({ title, body }) {
 ```
 
 **Using old Tailwind plugin**
-```typescript
-// ❌ WRONG - Fresh 1.x Tailwind plugin
-import tailwind from "jsr:@fresh/plugin-tailwindcss";
 
+The old Fresh 1.x Tailwind plugin is deprecated. Fresh 2.x uses the Vite Tailwind plugin:
+
+```typescript
 // ✅ CORRECT - Fresh 2.x uses Vite Tailwind plugin
 import tailwindcss from "@tailwindcss/vite";
 ```
@@ -848,21 +813,21 @@ deno run -Ar jsr:@fresh/update
 ```
 
 This tool automatically:
-- Converts `$fresh/server.ts` imports to `fresh`
-- Updates handler signatures from `(req, ctx)` to `(ctx)`
-- Removes `fresh.gen.ts` and `dev.ts`
+- Converts old import paths to the new `fresh` package
+- Updates handler signatures to use the single `(ctx)` parameter
+- Removes legacy generated and config files
 - Creates `vite.config.ts` and `client.ts`
-- Updates `deno.json` tasks
-- Converts `_404.tsx`/`_500.tsx` to unified `_error.tsx`
-- Updates context method calls (`ctx.renderNotFound()` → `throw new HttpError(404)`)
+- Updates `deno.json` tasks to use Vite
+- Merges separate error pages into unified `_error.tsx`
+- Updates deprecated context method calls to Fresh 2.x equivalents
 
 ### Manual Migration Checklist
 
 If the tool misses anything:
 
-1. **Imports**: Replace all `$fresh/*` with `fresh`
-2. **Handlers**: Change `(req, ctx)` to `(ctx)`, access request via `ctx.req`
-3. **Files**: Delete `fresh.gen.ts`, `dev.ts`, `fresh.config.ts`
+1. **Imports**: All Fresh imports should come from `fresh` or `fresh/runtime`
+2. **Handlers**: Should use single `(ctx)` parameter, access request via `ctx.req`
+3. **Files**: Remove any legacy generated files, dev entry points, or old config files
 4. **Tasks**: Update to `vite`, `vite build`, `deno serve -A _fresh/server.js`
-5. **Error pages**: Merge `_404.tsx` and `_500.tsx` into `_error.tsx`
-6. **Tailwind**: Replace `@fresh/plugin-tailwindcss` with `@tailwindcss/vite`
+5. **Error pages**: Use a single unified `_error.tsx`
+6. **Tailwind**: Use `@tailwindcss/vite` (the Vite plugin)

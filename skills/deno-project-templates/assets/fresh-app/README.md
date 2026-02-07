@@ -9,8 +9,9 @@ cd {{PROJECT_NAME}}
 
 This creates a complete Fresh project with all necessary files:
 - `deno.json` - Configuration
-- `main.ts` - Entry point
-- `fresh.gen.ts` - Auto-generated manifest
+- `main.ts` - Server entry point
+- `client.ts` - Client entry point
+- `vite.config.ts` - Vite build configuration
 - `routes/` - Pages and API routes
 - `islands/` - Interactive components
 - `components/` - Server-only components

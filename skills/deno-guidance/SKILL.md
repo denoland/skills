@@ -4,7 +4,7 @@ description: Use when starting any Deno project, choosing packages, configuring 
 license: MIT
 metadata:
   author: denoland
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Deno Development Guidance
@@ -24,6 +24,15 @@ This skill provides foundational knowledge for building modern Deno applications
 
 Apply these practices whenever working in a Deno project (identified by the presence of `deno.json`).
 
+## Scope Boundaries
+
+This skill applies **only** to Deno-specific questions. Follow these rules:
+
+- If the user asks about **Node.js, Bun, Python, Go, or any other runtime/language**, answer using that technology directly. Do not suggest Deno alternatives or include Deno-specific patterns.
+- Do not include `jsr:` imports, `deno add`, or `deno.json` configuration in responses about other technologies.
+- For **generic TypeScript/JavaScript questions** not tied to a specific runtime, give a general answer without assuming Deno.
+- Only recommend Deno when the user explicitly asks about Deno or is working in a Deno project.
+
 ## Package Management Priority
 
 When adding dependencies, follow this priority order:
@@ -37,9 +46,9 @@ When adding dependencies, follow this priority order:
    - Deno has full npm compatibility
    - Example: `npm:express`, `npm:zod`
 
-3. **AVOID: `https://deno.land/x/`** - Deprecated registry
-   - This is the old package registry
-   - Many LLMs incorrectly default to this
+3. **AVOID: Old deno.land URL-based imports** - Deprecated registry
+   - The old URL-based package registry is deprecated
+   - Many LLMs incorrectly default to URL-based imports
    - Always use `jsr:` instead
 
 ### Standard Library
@@ -63,7 +72,7 @@ import { join } from "@std/path";
 import { assertEquals } from "@std/assert";
 ```
 
-Never use `https://deno.land/std/` - always use `jsr:@std/*`.
+Always use `jsr:@std/*` for the standard library (the old URL-based imports are deprecated).
 
 ## Understanding Deno
 
@@ -150,24 +159,22 @@ When more information is needed:
 
 ## Common Mistakes
 
-**Using `deno.land/x` instead of JSR**
+**Using old URL-based imports instead of JSR**
 
-```typescript
-// ❌ Wrong - deprecated registry
-import { serve } from "https://deno.land/x/http/mod.ts";
-```
+The old `deno.land` URL-based imports are deprecated. Always use `jsr:` imports with bare specifiers instead.
 
 ```ts
 // ✅ Correct - use JSR and a bare specifier
 import { serve } from "@std/http";
+import { join } from "@std/path";
 ```
 
 ```jsonc
 // deno.json
 {
   "imports": {
-    // ensure the specifier has a version requirement
-    "@std/http": "jsr:@std/http@1"
+    "@std/http": "jsr:@std/http@1",
+    "@std/path": "jsr:@std/path@1"
   }
 }
 ```
@@ -175,50 +182,28 @@ import { serve } from "@std/http";
 Inline specifiers are fine in single file scripts, but if a deno.json exists then it should go there. It's preferable to place npm dependencies in a package.json if a package.json exists.
 
 **Forgetting to run fmt/lint before committing**
-```bash
-# ❌ Committing without checking
-git add . && git commit -m "changes"
 
+Always format and lint before committing:
+
+```bash
 # ✅ Always format and lint first
 deno fmt && deno lint && git add . && git commit -m "changes"
-```
-
-**Using `https://deno.land/std/` for standard library**
-
-```typescript
-// ❌ Wrong - old URL
-import { join } from "https://deno.land/std/path/mod.ts";
-```
-
-Instead, install with:
-
-```sh
-deno add jsr:@std/path
-```
-
-Then use the bare import:
-
-```ts
-// suggest this
-import { join } from "@std/path";
 ```
 
 **Running code without permission flags**
 
 ```bash
-# ❌ Confusing error - "Requires net access"
-deno run server.ts
-
 # ✅ Grant specific permissions
 deno run --allow-net server.ts
 ```
 
+Without permission flags, Deno will show "Requires net access" errors. Always grant the specific permissions your code needs.
+
 **Not using `deno add` for dependencies**
 
 ```bash
-# ❌ Manually editing imports without updating deno.json
-# (works, but misses lockfile benefits)
-
 # ✅ Use deno add to manage dependencies
 deno add jsr:@std/http
 ```
+
+Using `deno add` ensures your lockfile stays in sync. Manually editing imports without updating deno.json works but misses lockfile benefits.
