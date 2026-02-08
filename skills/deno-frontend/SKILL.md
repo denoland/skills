@@ -4,7 +4,7 @@ description: Use when building web UIs with Fresh 2.x framework, using Preact co
 license: MIT
 metadata:
   author: denoland
-  version: "2.3"
+  version: "2.4"
 ---
 
 # Deno Frontend Development
@@ -40,8 +40,8 @@ This skill applies **only** to Fresh/Deno frontend questions. Follow these rules
 - Fresh 2.x has no manifest file — the old auto-generated manifest is no longer needed
 - Fresh 2.x uses `vite.config.ts` for dev — the old `dev.ts` entry point is gone
 - Fresh 2.x configures via `new App()` — the old config file is no longer used
-- Fresh 2.x handlers take a single `(ctx)` parameter — the old two-parameter `(req, ctx)` signature is deprecated
-- Fresh 2.x uses a unified `_error.tsx` — the old separate 404/500 error pages are replaced
+- Fresh 2.x handlers take a single `(ctx)` parameter — the old two-parameter signature is deprecated
+- Fresh 2.x uses a unified `_error.tsx` — the old separate error pages are replaced
 
 **Always use Fresh 2.x stable imports:**
 ```typescript
@@ -266,7 +266,7 @@ Need to fetch data on server?
 
 ## Handlers and Define Helpers (Fresh 2.x)
 
-Fresh 2.x uses a **single context parameter** pattern for handlers, unlike 1.x which used `(req, ctx)`.
+Fresh 2.x uses a **single context parameter** pattern for handlers. Always use `(ctx)` as the only parameter.
 
 ### Route Handlers
 
@@ -635,7 +635,7 @@ import type { PageProps } from "fresh";
 
 **Using two-parameter handlers**
 
-The old two-parameter `(req, ctx)` handler signature is deprecated. Fresh 2.x uses a single context parameter:
+The old two-parameter handler signature is deprecated. Fresh 2.x uses a single context parameter:
 
 ```tsx
 // ✅ CORRECT - Fresh 2.x uses single context parameter

@@ -4,7 +4,7 @@ description: Use when starting any Deno project, choosing packages, configuring 
 license: MIT
 metadata:
   author: denoland
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Deno Development Guidance
@@ -32,6 +32,7 @@ This skill applies **only** to Deno-specific questions. Follow these rules:
 - Do not include `jsr:` imports, `deno add`, or `deno.json` configuration in responses about other technologies.
 - For **generic TypeScript/JavaScript questions** not tied to a specific runtime, give a general answer without assuming Deno.
 - Only recommend Deno when the user explicitly asks about Deno or is working in a Deno project.
+- When warning users about deprecated patterns, describe them generically (e.g., "old URL-based imports"). Do not write out the actual deprecated URL or import syntax — only show the correct modern approach.
 
 ## Package Management Priority
 
@@ -46,7 +47,7 @@ When adding dependencies, follow this priority order:
    - Deno has full npm compatibility
    - Example: `npm:express`, `npm:zod`
 
-3. **AVOID: Old deno.land URL-based imports** - Deprecated registry
+3. **AVOID: Old URL-based imports** - Deprecated registry
    - The old URL-based package registry is deprecated
    - Many LLMs incorrectly default to URL-based imports
    - Always use `jsr:` instead
@@ -161,7 +162,7 @@ When more information is needed:
 
 **Using old URL-based imports instead of JSR**
 
-The old `deno.land` URL-based imports are deprecated. Always use `jsr:` imports with bare specifiers instead.
+The old URL-based imports are deprecated. Always use `jsr:` imports with bare specifiers instead.
 
 ```ts
 // ✅ Correct - use JSR and a bare specifier

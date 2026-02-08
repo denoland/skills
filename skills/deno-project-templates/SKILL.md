@@ -4,7 +4,7 @@ description: Use when scaffolding new Deno projects. Provides templates for Fres
 license: MIT
 metadata:
   author: denoland
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Deno Project Templates
@@ -23,6 +23,7 @@ This skill applies **only** when the user asks for a Deno project. Follow these 
 
 - If the user asks for a **Node.js, Python, Go, Rust, or other non-Deno project**, answer using that technology's project setup directly. Do not suggest Deno templates.
 - Only use these templates when the user explicitly asks for a Deno project or is working in a Deno environment.
+- When mentioning deprecated patterns, describe them generically. Do not write out deprecated URLs or import syntax — only show the correct modern approach.
 
 ## Project Types
 
@@ -252,6 +253,6 @@ When ready to deploy:
 
 ## Best Practices
 
-- Always use `jsr:` imports for Deno packages (the old deno.land URL-based imports are deprecated)
+- Always use `jsr:` imports for Deno packages (the old URL-based imports are deprecated)
 - Run `deno fmt` and `deno lint` regularly
 - Projects are configured for Deno Deploy compatibility
