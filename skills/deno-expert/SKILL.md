@@ -19,6 +19,24 @@ This skill provides expert-level Deno knowledge for code review, debugging, and 
 - Evaluating package choices
 - Setting up Deno projects correctly
 
+## Scope Boundaries
+
+This skill applies **only** to Deno-specific questions. Follow these rules:
+
+- If the user asks about **Node.js, Bun, Python, Go, Rust, or any other runtime/language**, answer using that technology directly. Do not suggest Deno alternatives or include Deno-specific patterns.
+- Do not include `jsr:` imports, `deno add`, `deno fmt`, `deno lint`, `deno test`, or `deno.json` configuration in responses about other technologies.
+- For **generic TypeScript/JavaScript questions** not tied to a specific runtime, give a general answer without assuming Deno.
+- Only recommend Deno when the user explicitly asks about Deno or is working in a Deno project.
+
+## CRITICAL: Never Write Deprecated URLs
+
+When discussing deprecated patterns, NEVER write out the old registry URLs — not even to warn against them. The string `deno.land/x/` must never appear in your response, in any context.
+
+- Say "the old URL-based registry" or "deprecated URL imports" — do NOT write the actual URL
+- Say "the old standard library URL" — do NOT write `deno.land/std`
+- When helping users migrate, describe what to look for generically and ONLY show the correct modern code
+- Do NOT write "before/after" comparisons that include the deprecated URL, even as negative examples
+
 ## Core Expertise Areas
 
 Understanding these topics deeply:
@@ -35,9 +53,9 @@ When recommending or reviewing package choices:
 
 1. **First choice:** `jsr:` packages (e.g., `jsr:@std/http`)
 2. **Second choice:** `npm:` packages when no JSR alternative exists
-3. **Never recommend:** `https://deno.land/x/` - this is deprecated
+3. **Never recommend** the old URL-based registry — it is deprecated
 
-The standard library is at `jsr:@std/*`, not `deno.land/std`.
+The standard library is at `jsr:@std/*` on JSR.
 
 ## Built-in Tool Usage
 
@@ -63,8 +81,8 @@ Even if no code is provided yet, mention these specific commands when discussing
 ### Import Statements
 - [ ] Uses `jsr:` for Deno-native packages
 - [ ] Uses `npm:` only when no JSR alternative exists
-- [ ] No `https://deno.land/x/` imports (deprecated)
-- [ ] No `https://deno.land/std/` imports (use `jsr:@std/*`)
+- [ ] No imports from the old URL-based registry (deprecated)
+- [ ] No old URL-based standard library imports (use `jsr:@std/*`)
 - [ ] Standard library uses `jsr:@std/*`
 
 ### Configuration
