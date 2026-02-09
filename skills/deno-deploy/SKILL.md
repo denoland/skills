@@ -1,6 +1,6 @@
 ---
 name: deno-deploy
-description: Deno Deploy platform and CLI commands - deploying apps, --tunnel flag for local development with hosted KV/databases, environment variables, custom domains, deno deploy/task commands. Use for KV database access, tunnel connections, and deployment workflows.
+description: Use when deploying Deno apps to production, asking about Deno Deploy, or working with `deno deploy` CLI commands. Covers deployment workflows, environment variables, KV database access, custom domains, the --tunnel flag for local development, and the `deno deploy` command reference.
 license: MIT
 metadata:
   author: denoland
