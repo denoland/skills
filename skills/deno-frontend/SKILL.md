@@ -32,6 +32,15 @@ This skill applies **only** to Fresh/Deno frontend questions. Follow these rules
 - Do not include Fresh imports, `useSignal`, island patterns, or Fresh project structure in responses about other frameworks.
 - Only recommend Fresh when the user explicitly asks about Fresh or is working in a Fresh/Deno project.
 
+## CRITICAL: Never Show Deprecated Syntax
+
+When helping users migrate from Fresh 1.x, describe old patterns generically and ONLY show correct Fresh 2.x code. Never write out old dollar-sign import paths or deprecated syntax, even in "before/after" comparisons.
+
+- Say "Replace the old dollar-sign import paths with stable Fresh 2.x imports" — then show only the correct `from "fresh"` approach
+- Do NOT write `❌ Old: import { App } from "$fresh/server.ts"` — this is never acceptable, even as a negative example
+
+Only demonstrate Fresh 2.x patterns.
+
 ## CRITICAL: Fresh 2.x vs 1.x
 
 **Always use Fresh 2.x patterns.** Fresh 1.x is deprecated. Key differences:

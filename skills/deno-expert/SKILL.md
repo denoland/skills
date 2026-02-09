@@ -51,6 +51,15 @@ Encourage using Deno's integrated tooling:
 
 ## Code Review Checklist
 
+### Always Mention Built-in Tools
+
+In every code review response, explicitly recommend these tools by name:
+- `deno fmt` for formatting
+- `deno lint` for linting
+- `deno test` for running tests
+
+Even if no code is provided yet, mention these specific commands when discussing code quality.
+
 ### Import Statements
 - [ ] Uses `jsr:` for Deno-native packages
 - [ ] Uses `npm:` only when no JSR alternative exists
@@ -78,61 +87,45 @@ Encourage using Deno's integrated tooling:
 
 ## Common Anti-Patterns to Flag
 
-### Wrong: deno.land/x imports
+When reviewing code, describe deprecated patterns generically and only show the correct modern replacement. Never write out the deprecated code.
 
+### URL-based imports (deprecated)
+
+When you see old URL-based imports from the deprecated registry, flag them and guide the user to:
+1. Find the package on jsr.io
+2. Run `deno add jsr:@package/name`
+3. Use the bare specifier
+
+Only show the correct approach:
 ```ts
-// Flag this
-import * as oak from "https://deno.land/x/oak@v17.2.0/mod.ts";
-```
-
-Find the dependency on jsr.io, suggest running `deno add jsr:@oak/oak`, then use the bare specifier:
-
-```ts
-// Suggest this
 import * as oak from "@oak/oak";
+import { join } from "@std/path";
 ```
 
-### Wrong: deno.land/std imports
+### Old standard library imports (deprecated)
 
-```typescript
-// Flag this
-import { join } from "https://deno.land/std/path/mod.ts";
-```
-
-Instead, install with:
+When you see imports from the old standard library URL, suggest the JSR equivalent:
 
 ```sh
 deno add jsr:@std/path
 ```
 
-Then use the bare import:
-
 ```ts
-// suggest this
 import { join } from "@std/path";
 ```
 
-### Wrong: Inline absolute remote specifiers
+### Inline remote specifiers
 
-```typescript
-// Flag this
-import chalk from "npm:chalk";
-import * as oak from "jsr:@oak/oak";
-```
-
-Suggest using the bare specifier and an import with a version requirement.
-
-Run:
+When you see inline `jsr:` or `npm:` specifiers in import statements (and a `deno.json` exists), suggest moving them to the import map:
 
 ```sh
-deno install npm:chalk
-deno install jsr:@oak/oak
+deno add jsr:@oak/oak
+deno add npm:chalk
 ```
 
-```typescript
-// Suggest this
-import chalk from "chalk";
+```ts
 import * as oak from "@oak/oak";
+import chalk from "chalk";
 ```
 
 Inline specifiers are fine in single file scripts, but if a deno.json exists then it should go there. It's preferable to place npm dependencies in a package.json if a package.json exists.

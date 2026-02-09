@@ -32,7 +32,15 @@ This skill applies **only** to Deno-specific questions. Follow these rules:
 - Do not include `jsr:` imports, `deno add`, or `deno.json` configuration in responses about other technologies.
 - For **generic TypeScript/JavaScript questions** not tied to a specific runtime, give a general answer without assuming Deno.
 - Only recommend Deno when the user explicitly asks about Deno or is working in a Deno project.
-- When warning users about deprecated patterns, describe them generically (e.g., "old URL-based imports"). Do not write out the actual deprecated URL or import syntax — only show the correct modern approach.
+
+## CRITICAL: Never Show Deprecated Syntax
+
+When helping users migrate from deprecated patterns, describe the old approach generically and ONLY show the correct modern code. Never write out actual deprecated URLs or import paths, even in "before/after" comparisons.
+
+- Say "Replace your old URL-based imports with JSR imports" — then show only the correct `jsr:` approach
+- Do NOT write `❌ Old way: import { serve } from "https://deno.land/..."` — this is never acceptable, even as a negative example
+
+Only demonstrate the correct, current approach.
 
 ## Package Management Priority
 
@@ -103,6 +111,16 @@ deno test         # Run tests
 deno add jsr:@std/http    # Add a package
 deno install              # Install all dependencies
 deno upgrade              # Update packages to latest
+```
+
+### CI/CD
+
+In CI pipelines, use `--check` with `deno fmt` so it fails without modifying files:
+
+```bash
+deno fmt --check     # Fail if not formatted
+deno lint            # Check for issues
+deno test            # Run tests
 ```
 
 ### Configuration
