@@ -4,7 +4,7 @@ description: Expert-level Deno knowledge for code review, debugging, and best pr
 license: MIT
 metadata:
   author: denoland
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Deno Expert Knowledge

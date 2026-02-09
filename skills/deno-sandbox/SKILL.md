@@ -4,7 +4,7 @@ description: Use when building features that execute untrusted user code, AI-gen
 license: MIT
 metadata:
   author: denoland
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Deno Sandboxes

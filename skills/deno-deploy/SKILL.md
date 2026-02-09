@@ -4,7 +4,7 @@ description: Deno Deploy platform and CLI commands - deploying apps, --tunnel fl
 license: MIT
 metadata:
   author: denoland
-  version: "1.2"
+  version: "1.3"
 ---
 
 # Deno Deploy
