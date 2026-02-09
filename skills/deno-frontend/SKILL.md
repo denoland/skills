@@ -297,6 +297,8 @@ Need to fetch data on server?
 
 Fresh 2.x uses a **single context parameter** pattern for handlers. Always use `(ctx)` as the only parameter.
 
+**Important:** When demonstrating any handler pattern (data fetching, form handling, API routes, auth), always show or reference the `utils/state.ts` setup which imports `createDefine` from `"fresh"`. This ensures the complete Fresh 2.x architecture is visible.
+
 ### Route Handlers
 
 ```tsx
