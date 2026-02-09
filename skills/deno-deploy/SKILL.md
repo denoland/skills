@@ -11,6 +11,14 @@ metadata:
 
 This skill provides guidance for deploying applications to Deno Deploy.
 
+## Scope Boundaries
+
+This skill applies **only** to Deno Deploy questions. Follow these rules:
+
+- If the user asks about **AWS Lambda, Vercel, Netlify, Google Cloud Run, Docker, Kubernetes, or any other deployment platform**, answer using that platform directly. Do not suggest Deno Deploy as an alternative.
+- Do not include `deno deploy` commands, Deno KV, or Deno Deploy environment variable configuration in responses about other platforms.
+- Only recommend Deno Deploy when the user explicitly asks about Deno Deploy or is deploying a Deno application.
+
 ## Important: Use `deno deploy`, NOT `deployctl`
 
 **Always use the `deno deploy` command.** Do NOT use `deployctl`.

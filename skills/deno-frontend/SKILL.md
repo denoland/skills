@@ -219,11 +219,52 @@ export default async function Page() {
 
 ## Data Fetching Patterns
 
-Fresh 2.x provides two main approaches for fetching data on the server. Choose based on your needs:
+Fresh 2.x provides two approaches for fetching data on the server. The handler pattern is the recommended default because it demonstrates the full Fresh 2.x architecture and provides the most flexibility.
 
-### Approach A: Async Server Components (Simplest)
+### Approach A: Handler with Data Object (Recommended)
 
-Use this when you just need to fetch and display data. This is the **recommended default**.
+Use this as the default for data fetching. It uses the full Fresh 2.x handler pattern with typed data passing. Always show the complete setup including `utils/state.ts` when demonstrating this pattern.
+
+```tsx
+// utils/state.ts - one-time setup for type-safe handlers
+import { createDefine } from "fresh";
+
+export interface State {
+  user?: { id: string; name: string };
+}
+
+export const define = createDefine<State>();
+```
+
+```tsx
+// routes/posts.tsx
+import { define } from "@/utils/state.ts";
+
+// Handler fetches data and returns it via { data: {...} }
+export const handler = define.handlers(async (ctx) => {
+  const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+  const posts = await response.json();
+  return { data: { posts } };
+});
+
+// Page receives typed data
+export default define.page<typeof handler>(({ data }) => {
+  return (
+    <div>
+      <h1>Posts</h1>
+      <ul>
+        {data.posts.map((post) => <li key={post.id}>{post.title}</li>)}
+      </ul>
+    </div>
+  );
+});
+```
+
+This approach also supports auth checks, redirects, and other logic before rendering.
+
+### Approach B: Async Server Components (Shorthand)
+
+For the simplest cases where you just need to fetch and display data with no auth or redirects:
 
 ```tsx
 // routes/servers.tsx
@@ -241,35 +282,13 @@ export default async function ServersPage() {
 }
 ```
 
-### Approach B: Handler with Data Object (For Auth/Redirects)
-
-Use this when you need to check authentication, perform redirects, or run logic before rendering.
-
-```tsx
-// routes/profile.tsx
-import { define } from "@/utils/state.ts";
-
-// Handler returns data via { data: {...} } object
-export const handler = define.handlers((ctx) => {
-  if (!ctx.state.user) {
-    return ctx.redirect("/login");  // Redirect if not logged in
-  }
-  return { data: { user: ctx.state.user } };  // Pass data to page
-});
-
-// Page receives typed data via define.page<typeof handler>
-export default define.page<typeof handler>(({ data }) => {
-  return <h1>Welcome, {data.user.name}!</h1>;
-});
-```
-
 ### Decision Guide
 
 ```
 Need to fetch data on server?
-├─ Yes: Do you need auth checks or redirects?
-│   ├─ No → Use async page component (Approach A)
-│   └─ Yes → Use handler with { data: {...} } return (Approach B)
+├─ Yes → Use handler with { data: {...} } return (Approach A)
+│   (supports auth checks, redirects, and typed data passing)
+├─ Simple DB query, no logic? → Async page component is also fine (Approach B)
 └─ No → Just use a regular page component
 ```
 
