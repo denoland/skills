@@ -4,12 +4,21 @@ description: Deno Deploy platform and CLI commands - deploying apps, --tunnel fl
 license: MIT
 metadata:
   author: denoland
-  version: "1.2"
+  version: "1.3"
 ---
 
 # Deno Deploy
 
 This skill provides guidance for deploying applications to Deno Deploy.
+
+## Scope Boundaries
+
+This skill applies **only** to Deno Deploy questions. Follow these rules:
+
+- If the user asks about **AWS Lambda, Vercel, Netlify, Google Cloud Run, Docker, Kubernetes, or any other deployment platform**, answer using that platform directly. Do not mention Deno Deploy at all — not as an alternative, not as a comparison, not as a suggestion.
+- If the user asks about **running a local Deno script** (not deploying), answer the local question directly. Do not mention Deno Deploy, deployment, or the `--tunnel` flag.
+- Do not include `deno deploy` commands, Deno KV, or Deno Deploy environment variable configuration in responses about other platforms or local-only scripts.
+- Only discuss Deno Deploy when the user explicitly asks about Deno Deploy or deploying a Deno application to production.
 
 ## Important: Use `deno deploy`, NOT `deployctl`
 
@@ -20,6 +29,8 @@ This skill provides guidance for deploying applications to Deno Deploy.
 - **Requires Deno >= 2.4.2** - the `deno deploy` subcommand was introduced in Deno 2.4
 
 ## Deployment Workflow
+
+**Always show the core deploy command first** — then explain diagnostic steps. When a user asks "how do I deploy?", lead with the actual command (`deno deploy --prod`) before covering pre-flight checks and configuration.
 
 ### Step 1: Locate the App Directory
 
