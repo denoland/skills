@@ -1,7 +1,7 @@
 {
   "name": "deno-skills",
   "description": "Modern Deno development knowledge including JSR packages, Fresh framework, Deno Deploy, and best practices",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": {
     "name": "Deno Land"
   },
