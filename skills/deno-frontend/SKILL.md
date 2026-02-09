@@ -38,6 +38,7 @@ When helping users migrate from Fresh 1.x, describe old patterns generically and
 
 - Say "Replace the old dollar-sign import paths with stable Fresh 2.x imports" — then show only the correct `from "fresh"` approach
 - Do NOT write `❌ Old: import { App } from "$fresh/server.ts"` — this is never acceptable, even as a negative example
+- The strings `_404.tsx` and `_500.tsx` must never appear in your response, even when comparing Fresh 2.x to 1.x. Say "the old separate error pages" instead.
 
 Only demonstrate Fresh 2.x patterns.
 
