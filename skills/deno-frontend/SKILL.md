@@ -835,6 +835,23 @@ deno add npm:@tailwindcss/vite npm:tailwindcss
 
 The `@tailwindcss/vite` plugin requires the core `tailwindcss` package to be installed separately.
 
+## Fresh Alpha Versions (2.0.0-alpha.*)
+
+Some projects use Fresh 2.x alpha releases (e.g., `@fresh/core@2.0.0-alpha.29`). These are **not Fresh 1.x** but use a different setup than stable Fresh 2.x:
+
+| Alpha pattern | Stable 2.x pattern |
+|---|---|
+| `dev.ts` entry point | `vite.config.ts` |
+| `@fresh/plugin-tailwind` | `@tailwindcss/vite` |
+| `deno run -A --watch dev.ts` | `vite` |
+| Dev server on port 8000 | Dev server on port 5173 |
+| No `client.ts` | Requires `client.ts` |
+| `deno run -A dev.ts build` | `vite build` |
+
+**IMPORTANT:** If you see `dev.ts` in a project with `@fresh/core@2.0.0-alpha.*` in `deno.json`, do NOT treat it as a Fresh 1.x artifact. It is the correct entry point for alpha versions. Check the `deno.json` imports to determine which version is in use before suggesting changes.
+
+Alpha projects also use the handler pattern `define.handlers({ GET(ctx) { ... } })` which returns `{ data: {...} }` - this is the same as stable 2.x.
+
 ## Migrating from Fresh 1.x to 2.x
 
 If you have an existing Fresh 1.x project, run the migration tool:

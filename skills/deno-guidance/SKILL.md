@@ -111,8 +111,17 @@ deno test         # Run tests
 ```bash
 deno add jsr:@std/http    # Add a package
 deno install              # Install all dependencies
-deno upgrade              # Update packages to latest
+deno update               # Update all dependencies to latest compatible versions
+deno update jsr:@std/http # Update a specific dependency
 ```
+
+**`deno update` vs `deno upgrade`:**
+
+- `deno update` - Updates **project dependencies** in `deno.json` (and `package.json`) to their latest compatible versions. Respects semver ranges. Use this to keep your dependencies current.
+- `deno upgrade` - Updates the **Deno runtime itself** to the latest version. Has nothing to do with project dependencies.
+
+After running `deno update`, always check for breaking API changes - especially for alpha/pre-release packages where semver ranges can pull in breaking updates.
+
 
 ### CI/CD
 
@@ -173,7 +182,8 @@ When more information is needed:
 | `deno test` | Run tests |
 | `deno add <pkg>` | Add a package |
 | `deno install` | Install dependencies |
-| `deno upgrade` | Update packages |
+| `deno update` | Update project dependencies |
+| `deno upgrade` | Update Deno runtime itself |
 | `deno doc <pkg>` | View package documentation |
 | `deno deploy --prod` | Deploy to Deno Deploy |
 
