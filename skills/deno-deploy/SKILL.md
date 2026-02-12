@@ -4,7 +4,7 @@ description: Use when deploying Deno apps to production, asking about Deno Deplo
 license: MIT
 metadata:
   author: denoland
-  version: "1.4"
+  version: "1.5"
 ---
 
 # Deno Deploy
