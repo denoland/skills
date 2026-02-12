@@ -15,6 +15,14 @@ Deno Deploy supports multiple frameworks. The CLI auto-detects your framework an
 | **SvelteKit** | `svelte.config.js` | `npm run build` | Svelte SSR framework |
 | **Lume** | `_config.ts` with lume import | `deno task build` | Deno-native static site |
 
+## Framework Presets for `deno deploy create`
+
+When creating an app with `deno deploy create` in non-interactive mode, you can specify `--framework-preset` to auto-configure build commands and runtime settings. The available presets are: `Fresh`, `Next`, `Remix`, `Astro`, `SvelteKit`, `Nuxt`, `Lume`, `SolidStart`.
+
+When a preset is specified, you can omit `--install-command`, `--build-command`, `--pre-deploy-command`, and `--runtime-mode` — they are inferred from the preset.
+
+If you don't specify a preset, the CLI still auto-detects your framework from the project files. Use `--do-not-use-detected-build-config` to skip auto-detection and specify everything manually.
+
 ## Detect Framework Script
 
 ```bash

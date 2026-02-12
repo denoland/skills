@@ -48,6 +48,22 @@ deno deploy --token "your-token-here" --prod
   run: deno deploy --prod
 ```
 
+If the app doesn't exist yet, create it first in CI/CD using non-interactive flags:
+
+```yaml
+- name: Create and deploy app
+  env:
+    DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
+  run: |
+    deno deploy create \
+      --org my-org --app my-app \
+      --source local \
+      --runtime-mode dynamic --entrypoint main.ts \
+      --build-timeout 10 --build-memory-limit 2048 --region us
+```
+
+After the app is created, subsequent deploys only need `deno deploy --prod`.
+
 **Tip:** For fully automated deploys without browser prompts, ensure a Deno Deploy access token is set up. Create one at https://console.deno.com/account/access-tokens, then set it as the `DENO_DEPLOY_TOKEN` environment variable.
 
 ## Finding Your Organization Name
@@ -67,8 +83,9 @@ The Deno Deploy CLI requires an organization context for most operations. To fin
 cat deno.json | grep -A5 '"deploy"'
 ```
 
-If no deploy config exists, create an app:
+If no deploy config exists, you need to create the app first. Apps must be created before they can be deployed to.
 
+**Interactive creation** (opens a browser):
 ```bash
 deno deploy create --org your-org-name
 ```
@@ -77,6 +94,21 @@ This opens a browser to create the app. **Important:**
 - Complete the app creation in your browser
 - The CLI waits until you finish - it won't proceed automatically
 - The app name becomes your URL: `<app-name>.deno.dev`
+
+**Non-interactive creation** (for AI agents and CI/CD — no browser needed):
+```bash
+deno deploy create \
+  --org your-org-name \
+  --app your-app-name \
+  --source local \
+  --runtime-mode dynamic \
+  --entrypoint main.ts \
+  --build-timeout 5 \
+  --build-memory-limit 1024 \
+  --region us
+```
+
+This creates the app and does the initial deploy in one step. No browser interaction required. See the main skill doc for the full list of `create` flags.
 
 **Verifying Success:** After completion, verify by checking deno.json:
 
@@ -90,6 +122,11 @@ You should see:
   "org": "your-org-name",
   "app": "your-app-name"
 }
+```
+
+After this, subsequent deploys only need:
+```bash
+deno deploy --prod
 ```
 
 ## Interactive Commands

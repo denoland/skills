@@ -4,7 +4,7 @@ description: Use when deploying Deno apps to production, asking about Deno Deplo
 license: MIT
 metadata:
   author: denoland
-  version: "1.3"
+  version: "1.4"
 ---
 
 # Deno Deploy
@@ -73,6 +73,8 @@ deno deploy --prod
 
 **If NO deploy config exists:**
 
+**Apps must be created before they can be deployed to.** You cannot run `deno deploy --prod` until an app exists.
+
 **IMPORTANT: Ask the user first** - Do they have an existing app on Deno Deploy, or do they need to create a new one?
 
 **If they have an existing app**, add the config directly to deno.json:
@@ -84,22 +86,42 @@ deno deploy --prod
   }
 }
 ```
-The org name is in the Deno Deploy console URL (e.g., `console.deno.com/your-org-name`).
+The org name is in the Deno Deploy console URL (e.g., `console.deno.com/your-org-name`). Once this config is in place, subsequent deploys just need `deno deploy --prod`.
 
 **If they need to create a new app:**
 
 The CLI needs an organization name. Find it at https://console.deno.com - the org is in the URL path (e.g., `console.deno.com/your-org-name`).
 
-Then create the app:
+**Interactive creation** (opens a browser — only works when a human is at the keyboard):
 ```bash
 deno deploy create --org <ORG_NAME>
 # A browser window opens - complete the app creation there
 ```
 
-After completion, verify:
+**Non-interactive creation** (use when an AI agent is performing the deploy, or in CI/CD):
+```bash
+deno deploy create \
+  --org <ORG_NAME> \
+  --app <APP_NAME> \
+  --source local \
+  --runtime-mode dynamic \
+  --entrypoint main.ts \
+  --build-timeout 5 \
+  --build-memory-limit 1024 \
+  --region us
+```
+
+The create command also does the initial deploy. After it completes, `deno.json` is updated with `deploy.org` and `deploy.app` automatically. From that point on, subsequent deploys only need:
+```bash
+deno deploy --prod
+```
+
+After completion, verify the config was saved:
 ```bash
 grep -E '"org"|"app"' deno.json
 ```
+
+**When an AI agent is performing the deployment**, always use the non-interactive flow with explicit flags. The interactive flow requires browser windows and terminal prompts that agents cannot navigate.
 
 ## Core Commands
 
@@ -136,6 +158,109 @@ Or configure in `deno.json`:
     "entrypoint": "main.ts"
   }
 }
+```
+
+## Creating Apps (Non-Interactive Reference)
+
+When any flag beyond `--org` is provided, `deno deploy create` runs in non-interactive mode — all required flags must be specified. This is the recommended approach for AI agents and CI/CD pipelines.
+
+### Required Flags
+
+| Flag | Description |
+|------|-------------|
+| `--org <name>` | Organization name |
+| `--app <name>` | Application name (becomes your URL: `<app>.deno.dev`) |
+| `--source <local\|github>` | Deploy from local files or a GitHub repo |
+| `--build-timeout <minutes>` | Build timeout: 5, 10, 15, 20, 25, or 30 |
+| `--build-memory-limit <MB>` | Memory limit: 1024, 2048, 3072, or 4096 |
+| `--region <region>` | Deployment region: us, eu, or global |
+
+### GitHub Source Flags
+
+When using `--source github`, you also need:
+
+| Flag | Description |
+|------|-------------|
+| `--owner <name>` | GitHub repository owner |
+| `--repo <name>` | GitHub repository name |
+
+### Build Configuration Flags
+
+| Flag | Description |
+|------|-------------|
+| `--app-directory <path>` | Path to app directory (for monorepos) |
+| `--framework-preset <preset>` | Framework preset (see [Frameworks](references/FRAMEWORKS.md)) |
+| `--install-command <cmd>` | Custom install command |
+| `--build-command <cmd>` | Custom build command |
+| `--pre-deploy-command <cmd>` | Command to run before deploy |
+| `--do-not-use-detected-build-config` | Skip auto-detection of framework config |
+
+The CLI auto-detects your framework and build configuration. If a framework is detected, you can skip `--install-command`, `--build-command`, `--pre-deploy-command`, and `--runtime-mode` — they'll be inferred from the preset. Use `--do-not-use-detected-build-config` to override detection.
+
+### Runtime Mode Flags
+
+You must pick a runtime mode with `--runtime-mode <dynamic|static>` (unless a framework preset handles it).
+
+**Dynamic mode** (for apps with a server):
+
+| Flag | Description |
+|------|-------------|
+| `--entrypoint <path>` | Entry file (required for dynamic mode) |
+| `--arguments <args>` | Arguments passed to entrypoint (repeatable) |
+| `--working-directory <cwd>` | Working directory for the process |
+
+**Static mode** (for static sites):
+
+| Flag | Description |
+|------|-------------|
+| `--static-dir <dir>` | Directory to serve static files from (required) |
+| `--single-page-app` | Serve index.html for routes that don't match a file |
+
+### Other Flags
+
+| Flag | Description |
+|------|-------------|
+| `--dry-run` | Validate everything without actually creating the app |
+| `--no-wait` | Don't wait for the build to complete |
+| `--allow-node-modules` | Include node_modules in the upload |
+
+### Examples
+
+**Simple Deno server:**
+```bash
+deno deploy create \
+  --org my-org --app my-api \
+  --source local \
+  --runtime-mode dynamic --entrypoint main.ts \
+  --build-timeout 5 --build-memory-limit 1024 --region us
+```
+
+**Fresh app (framework auto-detected):**
+```bash
+deno deploy create \
+  --org my-org --app my-fresh-app \
+  --source local \
+  --build-timeout 5 --build-memory-limit 1024 --region us
+```
+
+**Next.js from GitHub:**
+```bash
+deno deploy create \
+  --org my-org --app my-next-app \
+  --source github --owner my-github-user --repo my-next-repo \
+  --framework-preset Next \
+  --build-timeout 15 --build-memory-limit 2048 --region us \
+  --allow-node-modules
+```
+
+**Static site:**
+```bash
+deno deploy create \
+  --org my-org --app my-static-site \
+  --source local \
+  --runtime-mode static --static-dir dist --single-page-app \
+  --build-command "deno task build" \
+  --build-timeout 5 --build-memory-limit 1024 --region us
 ```
 
 ## Environment Variables
@@ -325,9 +450,10 @@ Beyond just forwarding requests, the tunnel also:
 
 | Command | Purpose |
 |---------|---------|
-| `deno deploy --prod` | Production deployment |
+| `deno deploy --prod` | Deploy to production (app must exist first) |
 | `deno deploy` | Preview deployment |
-| `deno deploy create --org <name>` | Create new app |
+| `deno deploy create --org <name>` | Create new app (interactive) |
+| `deno deploy create --org <name> --app <name> ...` | Create new app (non-interactive, see full flags above) |
 | `deno deploy env add <var> <value>` | Add environment variable |
 | `deno deploy env list` | List environment variables |
 | `deno deploy env delete <var>` | Delete environment variable |
