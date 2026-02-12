@@ -28,6 +28,22 @@ This skill applies **only** to Deno Deploy questions. Follow these rules:
 - `deno deploy` is the modern, integrated command built into the Deno CLI
 - **Requires Deno >= 2.4.2** - the `deno deploy` subcommand was introduced in Deno 2.4
 
+## When Unsure About CLI Flags
+
+**Always run `--help` before guessing at flags.** The `deno deploy` subcommand has many flags, and they change between versions. When you're unsure what a command accepts:
+
+```bash
+# See all subcommands
+deno deploy --help
+
+# See flags for a specific subcommand
+deno deploy create --help
+deno deploy env --help
+deno deploy database --help
+```
+
+This takes seconds and prevents repeated trial-and-error failures. Never assume a flag exists — check first.
+
 ## Deployment Workflow
 
 **Always show the core deploy command first** — then explain diagnostic steps. When a user asks "how do I deploy?", lead with the actual command (`deno deploy --prod`) before covering pre-flight checks and configuration.
@@ -60,7 +76,35 @@ deno --version | head -1
 grep -E '"org"|"app"' deno.json deno.jsonc 2>/dev/null || echo "NO_DEPLOY_CONFIG"
 ```
 
-### Step 3: Deploy Based on Configuration
+### Step 3: Check for Startup Dependencies
+
+Before deploying, check if the app connects to a database or external service at startup (e.g., top-level `await initDb()` in `main.ts`). If it does, the deploy will fail during warmup because the database doesn't exist yet.
+
+**If the app has startup database dependencies, follow this order:**
+
+1. **Create the app with `--no-wait`** so a warmup failure doesn't block you:
+   ```bash
+   deno deploy create \
+     --org <ORG_NAME> --app <APP_NAME> \
+     --source local --runtime-mode dynamic --entrypoint main.ts \
+     --build-timeout 5 --build-memory-limit 1024 --region us \
+     --no-wait
+   ```
+
+2. **Provision and assign the database:**
+   ```bash
+   deno deploy database provision my-db --kind prisma --region us-east-1
+   deno deploy database assign my-db --app <APP_NAME>
+   ```
+
+3. **Redeploy** (now the database exists, warmup will succeed):
+   ```bash
+   deno deploy --prod
+   ```
+
+If the app has no startup dependencies, skip this step and deploy normally below.
+
+### Step 4: Deploy Based on Configuration
 
 **If `deploy.org` AND `deploy.app` exist in deno.json:**
 ```bash
@@ -203,7 +247,7 @@ When using `--source github`, you also need:
 | `--pre-deploy-command <cmd>` | Command to run before deploy |
 | `--do-not-use-detected-build-config` | Skip auto-detection of framework config |
 
-The CLI auto-detects your framework and build configuration. If a framework is detected, you can skip `--install-command`, `--build-command`, `--pre-deploy-command`, and `--runtime-mode` — they'll be inferred from the preset. Use `--do-not-use-detected-build-config` to override detection.
+The CLI auto-detects your framework and build configuration. If a framework is detected, you can skip `--install-command`, `--build-command`, `--pre-deploy-command`, and `--runtime-mode` — they'll be inferred from the preset. Use `--do-not-use-detected-build-config` to override detection. **When using this flag, all three build commands (`--install-command`, `--build-command`, `--pre-deploy-command`) plus `--runtime-mode` become required** — omitting any of them causes exit code 2.
 
 ### Runtime Mode Flags
 
@@ -391,8 +435,9 @@ Deno Deploy automatically connects to the correct database based on your environ
 For PostgreSQL, Deno Deploy injects environment variables (`DATABASE_URL`, `PGHOST`, etc.) that most libraries detect automatically:
 
 ```typescript
-import postgres from "npm:postgres";
-const sql = postgres(); // Reads DATABASE_URL automatically
+// Recommended: npm:pg (best PostgreSQL driver for Deno Deploy)
+import pg from "npm:pg";
+const pool = new pg.Pool(); // Reads DATABASE_URL from environment automatically
 ```
 
 ### Provisioning

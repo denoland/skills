@@ -107,12 +107,10 @@ Deno Deploy injects standard environment variables that most PostgreSQL librarie
 - `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` - Individual components
 
 ```typescript
-// Using npm:postgres
-import postgres from "npm:postgres";
-const sql = postgres(); // Reads from environment automatically
-
-// Or with Deno's built-in PostgreSQL driver
-const client = new Client(); // Also reads from environment
+// Recommended: npm:pg (best PostgreSQL driver for Deno Deploy)
+import pg from "npm:pg";
+const pool = new pg.Pool(); // Reads DATABASE_URL from environment automatically
+const { rows } = await pool.query("SELECT * FROM users");
 ```
 
 ## Local Development

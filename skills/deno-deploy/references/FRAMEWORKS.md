@@ -43,6 +43,44 @@ deno task build
 deno deploy --prod
 ```
 
+## Fresh + PostgreSQL
+
+When a Fresh app uses PostgreSQL (e.g., `await initDb()` at startup), you must provision the database **before** the app can successfully warm up. The Fresh auto-detection preset also has a known issue, so use manual build config.
+
+**Complete deployment sequence:**
+
+```bash
+# 1. Create the app with --no-wait (warmup will fail without a database — that's expected)
+deno deploy create \
+  --org <ORG_NAME> --app <APP_NAME> \
+  --source local \
+  --do-not-use-detected-build-config \
+  --install-command "deno install" \
+  --build-command "deno task build" \
+  --pre-deploy-command "echo ready" \
+  --runtime-mode dynamic --entrypoint main.ts \
+  --build-timeout 5 --build-memory-limit 1024 --region us \
+  --no-wait
+
+# 2. Provision a PostgreSQL database
+deno deploy database provision my-db --kind prisma --region us-east-1
+
+# 3. Assign it to the app (this injects DATABASE_URL, PGHOST, etc.)
+deno deploy database assign my-db --app <APP_NAME>
+
+# 4. Redeploy — now the database exists, so warmup succeeds
+deno deploy --prod
+```
+
+**Why this order matters:**
+- Fresh + PostgreSQL apps typically call `await initDb()` in `main.ts`, which runs during warmup
+- If no database is assigned, the connection fails and the deploy is marked as failed
+- Using `--no-wait` on the first deploy lets you continue to the database setup without blocking
+
+**Why `--do-not-use-detected-build-config`:**
+- The Fresh auto-detection and `--framework-preset fresh` can fail with an API error
+- Manual build config is more reliable — see [Troubleshooting](TROUBLESHOOTING.md#fresh-auto-detection--preset-fails)
+
 ## Astro
 
 ```bash
