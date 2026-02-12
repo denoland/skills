@@ -301,25 +301,30 @@ Fresh 2.x uses a **single context parameter** pattern for handlers. Always use `
 
 ### Route Handlers
 
+Always use `define.handlers()` for type-safe route handlers in file-based routes:
+
 ```tsx
 // routes/api/users.ts
-import type { Handlers } from "fresh";
+import { define } from "@/utils/state.ts";
 
 // Single function handles all methods
-export const handler = (ctx) => {
+export const handler = define.handlers((ctx) => {
   return new Response(`Hello from ${ctx.req.method}`);
-};
+});
 
 // Or method-specific handlers
-export const handler = {
+export const handler = define.handlers({
   GET(ctx) {
-    return new Response("GET request");
+    return Response.json({ users: [] });
   },
-  POST(ctx) {
-    return new Response("POST request");
+  async POST(ctx) {
+    const body = await ctx.req.json();
+    return Response.json({ created: true }, { status: 201 });
   },
-};
+});
 ```
+
+Note: Bare handler exports (`export const handler = (ctx) => {...}`) also work but lose TypeScript type safety. Prefer `define.handlers()`.
 
 ### The Context Object
 

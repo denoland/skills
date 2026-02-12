@@ -145,13 +145,10 @@ Preview deployments create a unique URL for testing without affecting production
 deno deploy --org my-org --app my-app --prod
 ```
 
-### Specifying an Entrypoint
+### Configuring an Entrypoint
 
-```bash
-deno deploy --entrypoint main.ts --prod
-```
+Set the entrypoint in your `deno.json` (this is used by `deno deploy create` during app creation):
 
-Or configure in `deno.json`:
 ```json
 {
   "deploy": {
@@ -159,6 +156,17 @@ Or configure in `deno.json`:
   }
 }
 ```
+
+Note: `--entrypoint` is a flag on `deno deploy create`, not on `deno deploy` itself.
+
+### Additional Flags
+
+These flags are available on `deno deploy create` (and apply during the initial deploy):
+
+| Flag | Purpose |
+|------|---------|
+| `--allow-node-modules` | Include node_modules directory in upload |
+| `--no-wait` | Skip waiting for the build to complete |
 
 ## Creating Apps (Non-Interactive Reference)
 
@@ -299,17 +307,29 @@ const isDenoDeploy = Deno.env.get("DENO_DEPLOY") === "1";
 ### Managing Variables via CLI
 
 ```bash
-# Add a variable
+# Add a plain text variable
 deno deploy env add DATABASE_URL "postgres://..."
 
-# List variables
+# Add a secret variable (hidden after creation, only readable in code)
+deno deploy env add API_KEY "sk-..." --secret
+
+# List all variables
 deno deploy env list
+
+# Update just the value (keeps contexts and secret status)
+deno deploy env update-value DATABASE_URL "postgres://new-url..."
+
+# Update which contexts a variable applies to
+deno deploy env update-contexts DATABASE_URL production development
 
 # Delete a variable
 deno deploy env delete DATABASE_URL
 
-# Load from .env file
+# Load from .env file (all values treated as secrets by default)
 deno deploy env load .env.production
+
+# Load from .env file, marking specific keys as non-secrets
+deno deploy env load .env.production --non-secrets PUBLIC_URL APP_NAME
 ```
 
 ### Variable Types
@@ -454,9 +474,18 @@ Beyond just forwarding requests, the tunnel also:
 | `deno deploy` | Preview deployment |
 | `deno deploy create --org <name>` | Create new app (interactive) |
 | `deno deploy create --org <name> --app <name> ...` | Create new app (non-interactive, see full flags above) |
-| `deno deploy env add <var> <value>` | Add environment variable |
+| `deno deploy create ... --no-wait` | Create app without waiting for build to complete |
+| `deno deploy create ... --allow-node-modules` | Create app including node_modules |
+| `deno deploy env add <var> <value>` | Add plain text environment variable |
+| `deno deploy env add <var> <value> --secret` | Add secret environment variable |
 | `deno deploy env list` | List environment variables |
+| `deno deploy env update-value <var> <value>` | Update variable value (keeps contexts/secret status) |
+| `deno deploy env update-contexts <var> <contexts...>` | Update which contexts a variable applies to |
 | `deno deploy env delete <var>` | Delete environment variable |
+| `deno deploy env load <file>` | Load variables from .env file (defaults to secret) |
+| `deno deploy env load <file> --non-secrets <keys...>` | Load .env file, marking specific keys as non-secrets |
+| `deno deploy database provision <name> --kind <type>` | Provision a new database |
+| `deno deploy database assign <name> --app <app>` | Assign database to an app |
 | `deno deploy logs` | View deployment logs |
 | `deno run --tunnel -A <file>` | Start local tunnel |
 | `deno task --tunnel <task>` | Run task with tunnel |
