@@ -4,7 +4,7 @@ description: Expert-level Deno knowledge for code review, debugging, and best pr
 license: MIT
 metadata:
   author: denoland
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Deno Expert Knowledge
@@ -18,6 +18,26 @@ This skill provides expert-level Deno knowledge for code review, debugging, and 
 - Answering advanced Deno questions
 - Evaluating package choices
 - Setting up Deno projects correctly
+
+## Scope Boundaries
+
+This skill applies **only** to Deno-specific questions. Follow these rules:
+
+- If the user asks about **Node.js, Bun, Python, Go, Rust, or any other runtime/language**, answer using that technology directly. Do not suggest Deno alternatives or include Deno-specific patterns.
+- Do not include `jsr:` imports, `deno add`, `deno fmt`, `deno lint`, `deno test`, or `deno.json` configuration in responses about other technologies.
+- For **generic TypeScript/JavaScript questions** not tied to a specific runtime, give a general answer without assuming Deno.
+- Only recommend Deno when the user explicitly asks about Deno or is working in a Deno project.
+
+## CRITICAL: Never Write Deprecated URLs
+
+When discussing deprecated patterns, NEVER write out the old registry URLs — not even to warn against them. The string `deno.land/x/` must never appear in your response, in any context.
+
+- Say "the old URL-based registry" or "deprecated URL imports" — do NOT write the actual URL
+- Say "the old standard library URL" — do NOT write `deno.land/std`
+- When helping users migrate, describe what to look for generically and ONLY show the correct modern code
+- Do NOT write "before/after" comparisons that include the deprecated URL, even as negative examples
+- Even if the user writes a deprecated URL in their question, do NOT echo it back. Refer to it generically.
+- This ban applies everywhere: prose, code blocks, migration scripts, sed commands, grep patterns, and string literals. Never write the deprecated URL string for any reason.
 
 ## Core Expertise Areas
 
@@ -35,27 +55,41 @@ When recommending or reviewing package choices:
 
 1. **First choice:** `jsr:` packages (e.g., `jsr:@std/http`)
 2. **Second choice:** `npm:` packages when no JSR alternative exists
-3. **Never recommend:** `https://deno.land/x/` - this is deprecated
+3. **Never recommend** the old URL-based registry — it is deprecated
 
-The standard library is at `jsr:@std/*`, not `deno.land/std`.
+The standard library is at `jsr:@std/*` on JSR.
+
+Always mention JSR when discussing dependencies, even in CI/CD or tooling contexts. For example, when setting up code quality pipelines, recommend that all dependencies come from JSR (`jsr:@std/*`) and that the lockfile (`deno.lock`) be committed for reproducible CI builds.
 
 ## Built-in Tool Usage
 
-Encourage using Deno's integrated tooling:
+**In every response that involves Deno code** (not just code reviews), mention relevant built-in tools. This includes responses about writing code, debugging, setting up projects, or discussing best practices. Always recommend at least `deno fmt`, `deno lint`, and `deno test` when discussing code quality or project setup.
+
+Deno's integrated tooling:
 - `deno fmt` - Format code
 - `deno lint` - Lint for issues
 - `deno test` - Run tests
+- `deno check` - Type-check code
 - `deno doc <package>` - View package documentation
 - `deno add <package>` - Add dependencies
 - `deno deploy` - Deploy to Deno Deploy
 
 ## Code Review Checklist
 
+### Always Mention Built-in Tools
+
+In every code review response, explicitly recommend these tools by name:
+- `deno fmt` for formatting
+- `deno lint` for linting
+- `deno test` for running tests
+
+Even if no code is provided yet, mention these specific commands when discussing code quality.
+
 ### Import Statements
 - [ ] Uses `jsr:` for Deno-native packages
 - [ ] Uses `npm:` only when no JSR alternative exists
-- [ ] No `https://deno.land/x/` imports (deprecated)
-- [ ] No `https://deno.land/std/` imports (use `jsr:@std/*`)
+- [ ] No imports from the old URL-based registry (deprecated)
+- [ ] No old URL-based standard library imports (use `jsr:@std/*`)
 - [ ] Standard library uses `jsr:@std/*`
 
 ### Configuration
@@ -78,61 +112,45 @@ Encourage using Deno's integrated tooling:
 
 ## Common Anti-Patterns to Flag
 
-### Wrong: deno.land/x imports
+When reviewing code, describe deprecated patterns generically and only show the correct modern replacement. Never write out the deprecated code.
 
+### URL-based imports (deprecated)
+
+When you see old URL-based imports from the deprecated registry, flag them and guide the user to:
+1. Find the package on jsr.io
+2. Run `deno add jsr:@package/name`
+3. Use the bare specifier
+
+Only show the correct approach:
 ```ts
-// Flag this
-import * as oak from "https://deno.land/x/oak@v17.2.0/mod.ts";
-```
-
-Find the dependency on jsr.io, suggest running `deno add jsr:@oak/oak`, then use the bare specifier:
-
-```ts
-// Suggest this
 import * as oak from "@oak/oak";
+import { join } from "@std/path";
 ```
 
-### Wrong: deno.land/std imports
+### Old standard library imports (deprecated)
 
-```typescript
-// Flag this
-import { join } from "https://deno.land/std/path/mod.ts";
-```
-
-Instead, install with:
+When you see imports from the old standard library URL, suggest the JSR equivalent:
 
 ```sh
 deno add jsr:@std/path
 ```
 
-Then use the bare import:
-
 ```ts
-// suggest this
 import { join } from "@std/path";
 ```
 
-### Wrong: Inline absolute remote specifiers
+### Inline remote specifiers
 
-```typescript
-// Flag this
-import chalk from "npm:chalk";
-import * as oak from "jsr:@oak/oak";
-```
-
-Suggest using the bare specifier and an import with a version requirement.
-
-Run:
+When you see inline `jsr:` or `npm:` specifiers in import statements (and a `deno.json` exists), suggest moving them to the import map:
 
 ```sh
-deno install npm:chalk
-deno install jsr:@oak/oak
+deno add jsr:@oak/oak
+deno add npm:chalk
 ```
 
-```typescript
-// Suggest this
-import chalk from "chalk";
+```ts
 import * as oak from "@oak/oak";
+import chalk from "chalk";
 ```
 
 Inline specifiers are fine in single file scripts, but if a deno.json exists then it should go there. It's preferable to place npm dependencies in a package.json if a package.json exists.

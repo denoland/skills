@@ -4,7 +4,7 @@ description: Use when building features that execute untrusted user code, AI-gen
 license: MIT
 metadata:
   author: denoland
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Deno Sandboxes
@@ -24,6 +24,14 @@ Use Deno Sandboxes when you need to:
 - Build code playground platforms
 - Create multi-tenant code execution environments
 - Run automated tests in isolation
+
+## Scope Boundaries
+
+This skill applies **only** to Deno Sandbox (`@deno/sandbox`) questions. Follow these rules:
+
+- If the user asks about **Docker containers, Node.js vm2/vm, Web Workers, AWS Lambda isolation, or any other isolation technology**, answer using that technology directly. Do not suggest Deno Sandboxes as an alternative.
+- Do not include `@deno/sandbox` imports, `Sandbox.create()`, or `sandbox.spawn()` in responses about other isolation technologies.
+- Only recommend Deno Sandboxes when the user explicitly asks about them or is building code execution features in a Deno project.
 
 ## Getting Started
 
@@ -53,23 +61,14 @@ console.log(new TextDecoder().decode(output.stdout));
 
 ### Sandbox Lifecycle
 
-Sandboxes are resources that should be disposed when done. Use `await using` for automatic cleanup:
+Sandboxes are resources that must be disposed when done. **Always** use `await using` for automatic cleanup:
 
 ```typescript
 await using sandbox = await Sandbox.create();
 // Sandbox is automatically destroyed when this scope ends
 ```
 
-Or manually dispose:
-
-```typescript
-const sandbox = await Sandbox.create();
-try {
-  // Use sandbox
-} finally {
-  await sandbox[Symbol.asyncDispose]();
-}
-```
+CRITICAL: Never show `const sandbox = await Sandbox.create()` without `await using`. Always use the `await using` pattern for sandbox creation. Do not show manual disposal alternatives.
 
 ### Running Processes
 
@@ -300,13 +299,11 @@ Key classes:
 
 ## Common Mistakes
 
-**Forgetting to dispose of sandboxes**
+**Forgetting automatic disposal**
 
 ```typescript
-// ❌ Wrong - sandbox leaks resources
-const sandbox = await Sandbox.create();
-await sandbox.spawn("echo", { args: ["hello"] });
-// sandbox never disposed!
+// ❌ Wrong - always use "await using" for sandbox creation
+// Never write: const sandbox = await Sandbox.create() without "await using"
 
 // ✅ Correct - use "await using" for automatic cleanup
 await using sandbox = await Sandbox.create();
