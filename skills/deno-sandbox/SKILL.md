@@ -140,7 +140,7 @@ async function runUserCode(code: string): Promise<string> {
   await using sandbox = await Sandbox.create();
 
   // Write user code to a file in the sandbox
-  await sandbox.writeFile("/tmp/user_code.ts", code);
+  await sandbox.fs.writeFile("/tmp/user_code.ts", code);
 
   // Run with restricted permissions
   const child = await sandbox.spawn("deno", {
