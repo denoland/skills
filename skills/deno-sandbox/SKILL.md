@@ -18,6 +18,7 @@ Reference: https://deno.com/deploy/sandboxes
 ## When to Use Sandboxes
 
 Use Deno Sandboxes when you need to:
+
 - Run user-submitted code safely
 - Execute AI-generated code
 - Build code playground platforms
@@ -76,9 +77,9 @@ The `spawn` method runs commands inside the sandbox:
 ```typescript
 const child = await sandbox.spawn("deno", {
   args: ["run", "script.ts"],
-  stdin: "piped",   // Enable stdin
-  stdout: "piped",  // Capture stdout
-  stderr: "piped",  // Capture stderr
+  stdin: "piped", // Enable stdin
+  stdout: "piped", // Capture stdout
+  stderr: "piped" // Capture stderr
 });
 
 // Wait for completion and get output
@@ -96,7 +97,7 @@ For interactive processes or long-running commands:
 const child = await sandbox.spawn("deno", {
   args: ["repl"],
   stdin: "piped",
-  stdout: "piped",
+  stdout: "piped"
 });
 
 // Write to stdin
@@ -140,17 +141,17 @@ async function runUserCode(code: string): Promise<string> {
   await using sandbox = await Sandbox.create();
 
   // Write user code to a file in the sandbox
-  await sandbox.writeFile("/tmp/user_code.ts", code);
+  await sandbox.fs.writeFile("/tmp/user_code.ts", code);
 
   // Run with restricted permissions
   const child = await sandbox.spawn("deno", {
     args: [
       "run",
-      "--allow-none",  // No permissions
+      "--allow-none", // No permissions
       "/tmp/user_code.ts"
     ],
     stdout: "piped",
-    stderr: "piped",
+    stderr: "piped"
   });
 
   const output = await child.output();
@@ -180,12 +181,12 @@ async function executePlayground(code: string): Promise<ExecutionResult> {
 
   await using sandbox = await Sandbox.create();
 
-  await sandbox.writeFile("/playground/main.ts", code);
+  await sandbox.fs.writeFile("/playground/main.ts", code);
 
   const child = await sandbox.spawn("deno", {
     args: ["run", "--allow-net", "/playground/main.ts"],
     stdout: "piped",
-    stderr: "piped",
+    stderr: "piped"
   });
 
   const output = await child.output();
@@ -194,10 +195,8 @@ async function executePlayground(code: string): Promise<ExecutionResult> {
   return {
     success: output.code === 0,
     output: new TextDecoder().decode(output.stdout),
-    error: output.code !== 0
-      ? new TextDecoder().decode(output.stderr)
-      : undefined,
-    executionTime,
+    error: output.code !== 0 ? new TextDecoder().decode(output.stderr) : undefined,
+    executionTime
   };
 }
 ```
@@ -207,10 +206,7 @@ async function executePlayground(code: string): Promise<ExecutionResult> {
 ```typescript
 import { Sandbox } from "@deno/sandbox";
 
-async function executeAgentTool(
-  toolCode: string,
-  input: unknown
-): Promise<unknown> {
+async function executeAgentTool(toolCode: string, input: unknown): Promise<unknown> {
   await using sandbox = await Sandbox.create();
 
   // Create a wrapper that handles input/output
@@ -221,13 +217,13 @@ async function executeAgentTool(
     console.log(JSON.stringify(result));
   `;
 
-  await sandbox.writeFile("/tool.ts", toolCode);
-  await sandbox.writeFile("/run.ts", wrapper);
+  await sandbox.fs.writeFile("/tool.ts", toolCode);
+  await sandbox.fs.writeFile("/run.ts", wrapper);
 
   const child = await sandbox.spawn("deno", {
     args: ["run", "--allow-net", "/run.ts"],
     stdout: "piped",
-    stderr: "piped",
+    stderr: "piped"
   });
 
   const output = await child.output();
@@ -245,12 +241,14 @@ async function executeAgentTool(
 ### Resource Configuration
 
 Sandboxes have configurable resources:
+
 - **Default:** 2 vCPUs, 512MB memory, 10GB disk
 - Startup time: Under 200ms
 
 ### What's Included
 
 Each sandbox comes with:
+
 - TypeScript/JavaScript runtime (Deno)
 - Full Linux environment
 - Network access (can be restricted)
@@ -276,30 +274,33 @@ The sandbox SDK works seamlessly in the Deno Deploy environment.
 ## API Reference
 
 For the complete API, run:
+
 ```bash
 deno doc jsr:@deno/sandbox
 ```
 
 Key classes:
+
 - `Sandbox` - Main class for creating/managing sandboxes
 - `ChildProcess` - Represents a running process
 - `Client` - For managing Deploy resources (apps, volumes)
 
 ## Quick Reference
 
-| Task | Code |
-|------|------|
+| Task           | Code                                           |
+| -------------- | ---------------------------------------------- |
 | Create sandbox | `await using sandbox = await Sandbox.create()` |
-| Run command | `sandbox.spawn("cmd", { args: [...] })` |
-| Get output | `const output = await child.output()` |
-| Write file | `await sandbox.writeFile(path, content)` |
-| Read file | `await sandbox.readFile(path)` |
-| Kill process | `await child.kill()` |
-| Check status | `const status = await child.status` |
+| Run command    | `sandbox.spawn("cmd", { args: [...] })`        |
+| Get output     | `const output = await child.output()`          |
+| Write file     | `await sandbox.fs.writeFile(path, content)`    |
+| Read file      | `await sandbox.fs.readFile(path)`              |
+| Kill process   | `await child.kill()`                           |
+| Check status   | `const status = await child.status`            |
 
 ## Common Mistakes
 
 **Forgetting automatic disposal**
+
 ```typescript
 // ❌ Wrong - always use "await using" for sandbox creation
 // Never write: const sandbox = await Sandbox.create() without "await using"
@@ -311,24 +312,26 @@ await sandbox.spawn("echo", { args: ["hello"] });
 ```
 
 **Giving user code too many permissions**
+
 ```typescript
 // ❌ Wrong - gives untrusted code full access
 const child = await sandbox.spawn("deno", {
-  args: ["run", "--allow-all", "/tmp/user_code.ts"],
+  args: ["run", "--allow-all", "/tmp/user_code.ts"]
 });
 
 // ✅ Correct - restrict permissions to what's needed
 const child = await sandbox.spawn("deno", {
-  args: ["run", "--allow-none", "/tmp/user_code.ts"],  // No permissions
+  args: ["run", "--allow-none", "/tmp/user_code.ts"] // No permissions
 });
 
 // Or if network is truly needed:
 const child = await sandbox.spawn("deno", {
-  args: ["run", "--allow-net", "/tmp/user_code.ts"],  // Only network
+  args: ["run", "--allow-net", "/tmp/user_code.ts"] // Only network
 });
 ```
 
 **Not handling process output properly**
+
 ```typescript
 // ❌ Wrong - forgetting to pipe stdout/stderr
 const child = await sandbox.spawn("deno", { args: ["run", "script.ts"] });
@@ -339,29 +342,30 @@ const output = await child.output();
 const child = await sandbox.spawn("deno", {
   args: ["run", "script.ts"],
   stdout: "piped",
-  stderr: "piped",
+  stderr: "piped"
 });
 const output = await child.output();
 console.log(new TextDecoder().decode(output.stdout));
 ```
 
 **Not setting timeouts for user code execution**
+
 ```typescript
 // ❌ Wrong - user code could run forever
 const child = await sandbox.spawn("deno", {
-  args: ["run", "/tmp/user_code.ts"],
+  args: ["run", "/tmp/user_code.ts"]
 });
-await child.output();  // Could hang indefinitely
+await child.output(); // Could hang indefinitely
 
 // ✅ Correct - implement timeout handling
 const child = await sandbox.spawn("deno", {
   args: ["run", "/tmp/user_code.ts"],
   stdout: "piped",
-  stderr: "piped",
+  stderr: "piped"
 });
 
 // Set a timeout to kill the process
-const timeoutId = setTimeout(() => child.kill(), 5000);  // 5 second limit
+const timeoutId = setTimeout(() => child.kill(), 5000); // 5 second limit
 
 try {
   const output = await child.output();
@@ -372,6 +376,7 @@ try {
 ```
 
 **Trusting sandbox output without validation**
+
 ```typescript
 // ❌ Wrong - directly using untrusted output as code
 const result = await runUserCode(code);
@@ -380,7 +385,7 @@ const result = await runUserCode(code);
 // ✅ Correct - validate and sanitize output
 const result = await runUserCode(code);
 try {
-  const parsed = JSON.parse(result);  // Parse as data, not code
+  const parsed = JSON.parse(result); // Parse as data, not code
   if (isValidResponse(parsed)) {
     return parsed;
   }
