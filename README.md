@@ -1,44 +1,50 @@
 # Deno Development Skills
 
-Modern Deno development knowledge for AI coding assistants. These skills teach your AI assistant how to build Deno applications using current best practices.
+Modern Deno development knowledge for AI coding assistants. These skills teach
+your AI assistant how to build Deno applications using current best practices.
 
 ## Skills
 
-| Skill | Description |
-|-------|-------------|
-| **deno-guidance** | Core Deno best practices, JSR packages, CLI commands |
-| **deno-deploy** | Deployment workflows for Deno Deploy |
-| **deno-frontend** | Fresh framework, Preact components, Tailwind CSS |
-| **deno-sandbox** | Safe code execution with @deno/sandbox |
-| **deno-project-templates** | Project scaffolding templates |
-| **deno-expert** | Code review and debugging principles |
+| Skill                      | Description                                          |
+| -------------------------- | ---------------------------------------------------- |
+| **deno-guidance**          | Core Deno best practices, JSR packages, CLI commands |
+| **deno-deploy**            | Deployment workflows for Deno Deploy                 |
+| **deno-frontend**          | Fresh framework, Preact components, Tailwind CSS     |
+| **deno-sandbox**           | Safe code execution with @deno/sandbox               |
+| **deno-project-templates** | Project scaffolding templates                        |
+| **deno-expert**            | Code review and debugging principles                 |
 
 ## Key Principles
 
 These skills enforce modern Deno practices:
 
-1. **JSR over deno.land/x** - Always use `jsr:` imports; `deno.land/x` is deprecated
+1. **JSR over deno.land/x** - Always use `jsr:` imports; `deno.land/x` is
+   deprecated
 2. **npm: as fallback** - Use `npm:` packages when no JSR alternative exists
-3. **Built-in tools** - Encourage `deno fmt`, `deno lint`, `deno test`, `deno doc`
-4. **Fresh patterns** - Island architecture with small, serializable-prop islands
+3. **Built-in tools** - Encourage `deno fmt`, `deno lint`, `deno test`,
+   `deno doc`
+4. **Fresh patterns** - Island architecture with small, serializable-prop
+   islands
 
 ## Versioning
 
-This project uses [Semantic Versioning](https://semver.org/). When contributing changes:
+This project uses [Semantic Versioning](https://semver.org/). When contributing
+changes:
 
 ### When to Bump Versions
 
-| Change Type | Version Bump | Example |
-|-------------|--------------|---------|
-| Breaking changes | MAJOR (1.0 → 2.0) | Fundamentally altering how a skill works |
-| New features, significant updates | MINOR (1.1 → 1.2) | Adding new guidance, updating documentation |
-| Typo fixes, small clarifications | PATCH (1.1.0 → 1.1.1) | Fixing formatting, correcting typos |
+| Change Type                       | Version Bump          | Example                                     |
+| --------------------------------- | --------------------- | ------------------------------------------- |
+| Breaking changes                  | MAJOR (1.0 → 2.0)     | Fundamentally altering how a skill works    |
+| New features, significant updates | MINOR (1.1 → 1.2)     | Adding new guidance, updating documentation |
+| Typo fixes, small clarifications  | PATCH (1.1.0 → 1.1.1) | Fixing formatting, correcting typos         |
 
 ### Files to Update
 
 When making changes, update the appropriate version numbers:
 
-1. **Skill-specific changes** - Update the skill's `version` in its `SKILL.md` frontmatter
+1. **Skill-specific changes** - Update the skill's `version` in its `SKILL.md`
+   frontmatter
 2. **Plugin releases** - Update `version` in both:
    - `.claude-plugin/plugin.json`
    - `.claude-plugin/marketplace.json`
@@ -46,12 +52,14 @@ When making changes, update the appropriate version numbers:
 ### For Contributors
 
 - Include version bumps in your PRs when changing skill content
-- Use [conventional commits](https://www.conventionalcommits.org/) (e.g., `feat:`, `fix:`, `docs:`) to indicate change type
+- Use [conventional commits](https://www.conventionalcommits.org/) (e.g.,
+  `feat:`, `fix:`, `docs:`) to indicate change type
 - When in doubt, bump the MINOR version for content changes
 
 ## Installation
 
-These skills follow the [Agent Skills Specification](https://agentskills.io/specification).
+These skills follow the
+[Agent Skills Specification](https://agentskills.io/specification).
 
 ### Claude Code
 
@@ -100,7 +108,8 @@ cp -r /tmp/deno-skills/skills/* .cursor/skills/
 
 ### VS Code with GitHub Copilot
 
-> Note: Agent Skills require the `chat.useAgentSkills` setting to be enabled (currently in preview).
+> Note: Agent Skills require the `chat.useAgentSkills` setting to be enabled
+> (currently in preview).
 
 ```bash
 # Clone the repository
@@ -115,17 +124,21 @@ cp -r /tmp/deno-skills/skills/* ~/.copilot/skills/
 ```
 
 To enable Agent Skills in VS Code:
+
 1. Open VS Code Settings (Cmd/Ctrl + ,)
 2. Search for `chat.useAgentSkills`
 3. Enable the setting
 
 ### Other Platforms
 
-For other AI coding assistants that support the Agent Skills specification, copy the skill directories from `skills/` to your platform's skills directory. Check your platform's documentation for the correct location.
+For other AI coding assistants that support the Agent Skills specification, copy
+the skill directories from `skills/` to your platform's skills directory. Check
+your platform's documentation for the correct location.
 
 ## Usage
 
-Once installed, your AI assistant will automatically apply Deno best practices when:
+Once installed, your AI assistant will automatically apply Deno best practices
+when:
 
 - Working in projects with a `deno.json` file
 - Creating new Deno applications

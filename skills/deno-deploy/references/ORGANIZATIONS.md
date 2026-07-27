@@ -2,9 +2,12 @@
 
 ## What is an Organization?
 
-In Deno Deploy, an organization is a group where users collectively own apps and domains. Every user belongs to an organization - all resources (apps, domains, environment variables) exist at the organization level.
+In Deno Deploy, an organization is a group where users collectively own apps and
+domains. Every user belongs to an organization - all resources (apps, domains,
+environment variables) exist at the organization level.
 
 Each organization has:
+
 - **Name:** Displayed in the dashboard
 - **Slug:** Part of your default domain (e.g., `acme-inc.deno.net`)
 
@@ -21,11 +24,13 @@ Organizations are created automatically during Deno Deploy signup:
 ## Finding Your Organization
 
 Your org name appears in the console URL:
+
 ```
 https://console.deno.com/YOUR-ORG-NAME
 ```
 
 Use this for CLI commands:
+
 ```bash
 deno deploy create --org YOUR-ORG-NAME
 deno deploy --org YOUR-ORG-NAME --prod
@@ -56,6 +61,7 @@ Pending invitations can be cancelled before the person accepts.
 ## Permissions
 
 Currently, **all members have owner permissions**. Every member can:
+
 - Invite and remove other members
 - Create and delete apps
 - Manage domains
@@ -66,7 +72,8 @@ There is no tiered permission system yet.
 
 ## Organization Deletion
 
-Organizations **cannot be deleted through the dashboard**. Contact Deno support if you need to delete an organization.
+Organizations **cannot be deleted through the dashboard**. Contact Deno support
+if you need to delete an organization.
 
 ## Best Practices
 

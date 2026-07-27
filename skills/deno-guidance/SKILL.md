@@ -11,7 +11,10 @@ metadata:
 
 ## Overview
 
-This skill provides foundational knowledge for building modern Deno applications. Deno is a secure JavaScript/TypeScript runtime that runs TypeScript directly, has built-in tools (formatter, linter, test runner), and uses modern package management through JSR.
+This skill provides foundational knowledge for building modern Deno
+applications. Deno is a secure JavaScript/TypeScript runtime that runs
+TypeScript directly, has built-in tools (formatter, linter, test runner), and
+uses modern package management through JSR.
 
 ## When to Use This Skill
 
@@ -22,24 +25,36 @@ This skill provides foundational knowledge for building modern Deno applications
 - Setting up import maps
 - Understanding Deno's permission system
 
-Apply these practices whenever working in a Deno project (identified by the presence of `deno.json`).
+Apply these practices whenever working in a Deno project (identified by the
+presence of `deno.json`).
 
 ## Scope Boundaries
 
 This skill applies **only** to Deno-specific questions. Follow these rules:
 
-- If the user asks about **Node.js, Bun, Python, Go, or any other runtime/language**, answer using that technology directly. Do not suggest Deno alternatives or include Deno-specific patterns.
-- Do not include `jsr:` imports, `deno add`, or `deno.json` configuration in responses about other technologies.
-- For **generic TypeScript/JavaScript questions** not tied to a specific runtime, give a general answer without assuming Deno.
-- Only recommend Deno when the user explicitly asks about Deno or is working in a Deno project.
+- If the user asks about **Node.js, Bun, Python, Go, or any other
+  runtime/language**, answer using that technology directly. Do not suggest Deno
+  alternatives or include Deno-specific patterns.
+- Do not include `jsr:` imports, `deno add`, or `deno.json` configuration in
+  responses about other technologies.
+- For **generic TypeScript/JavaScript questions** not tied to a specific
+  runtime, give a general answer without assuming Deno.
+- Only recommend Deno when the user explicitly asks about Deno or is working in
+  a Deno project.
 
 ## CRITICAL: Never Show Deprecated Syntax
 
-When helping users migrate from deprecated patterns, describe the old approach generically and ONLY show the correct modern code. Never write out actual deprecated URLs or import paths, even in "before/after" comparisons. The string `deno.land/x/` must never appear in your response, in any context.
+When helping users migrate from deprecated patterns, describe the old approach
+generically and ONLY show the correct modern code. Never write out actual
+deprecated URLs or import paths, even in "before/after" comparisons. The string
+`deno.land/x/` must never appear in your response, in any context.
 
-- Say "Replace your old URL-based imports with JSR imports" — then show only the correct `jsr:` approach
-- Say "the old URL-based registry" or "the old standard library URL" — do NOT write the actual deprecated URL
-- Even if the user writes a deprecated URL in their question, do NOT echo it back. Refer to it generically.
+- Say "Replace your old URL-based imports with JSR imports" — then show only the
+  correct `jsr:` approach
+- Say "the old URL-based registry" or "the old standard library URL" — do NOT
+  write the actual deprecated URL
+- Even if the user writes a deprecated URL in their question, do NOT echo it
+  back. Refer to it generically.
 
 Only demonstrate the correct, current approach.
 
@@ -52,7 +67,8 @@ When adding dependencies, follow this priority order:
    - Faster to resolve and install
    - Example: `jsr:@std/http`, `jsr:@fresh/core`
 
-2. **npm packages (`npm:`)** - Fully supported, use when no JSR alternative exists
+2. **npm packages (`npm:`)** - Fully supported, use when no JSR alternative
+   exists
    - Deno has full npm compatibility
    - Example: `npm:express`, `npm:zod`
 
@@ -82,15 +98,18 @@ import { join } from "@std/path";
 import { assertEquals } from "@std/assert";
 ```
 
-Always use `jsr:@std/*` for the standard library (the old URL-based imports are deprecated).
+Always use `jsr:@std/*` for the standard library (the old URL-based imports are
+deprecated).
 
 ## Understanding Deno
 
 Reference: https://docs.deno.com/runtime/fundamentals/
 
 Key concepts:
+
 - **Native TypeScript** - No build step needed, Deno runs TypeScript directly
-- **Explicit permissions** - Use flags like `--allow-net`, `--allow-read`, `--allow-env`
+- **Explicit permissions** - Use flags like `--allow-net`, `--allow-read`,
+  `--allow-env`
 - **deno.json** - The config file (similar to package.json but simpler)
 - **Import maps** - Define import aliases in deno.json's `imports` field
 
@@ -117,15 +136,19 @@ deno update jsr:@std/http # Update a specific dependency
 
 **`deno update` vs `deno upgrade`:**
 
-- `deno update` - Updates **project dependencies** in `deno.json` (and `package.json`) to their latest compatible versions. Respects semver ranges. Use this to keep your dependencies current.
-- `deno upgrade` - Updates the **Deno runtime itself** to the latest version. Has nothing to do with project dependencies.
+- `deno update` - Updates **project dependencies** in `deno.json` (and
+  `package.json`) to their latest compatible versions. Respects semver ranges.
+  Use this to keep your dependencies current.
+- `deno upgrade` - Updates the **Deno runtime itself** to the latest version.
+  Has nothing to do with project dependencies.
 
-After running `deno update`, always check for breaking API changes - especially for alpha/pre-release packages where semver ranges can pull in breaking updates.
-
+After running `deno update`, always check for breaking API changes - especially
+for alpha/pre-release packages where semver ranges can pull in breaking updates.
 
 ### CI/CD
 
-In CI pipelines, use `--check` with `deno fmt` so it fails without modifying files:
+In CI pipelines, use `--check` with `deno fmt` so it fails without modifying
+files:
 
 ```bash
 deno fmt --check     # Fail if not formatted
@@ -173,25 +196,26 @@ When more information is needed:
 
 ## Quick Reference: Deno CLI Commands
 
-| Command | Purpose |
-|---------|---------|
-| `deno run file.ts` | Run a TypeScript/JavaScript file |
-| `deno task <name>` | Run a task from deno.json |
-| `deno fmt` | Format code |
-| `deno lint` | Lint code |
-| `deno test` | Run tests |
-| `deno add <pkg>` | Add a package |
-| `deno install` | Install dependencies |
-| `deno update` | Update project dependencies |
-| `deno upgrade` | Update Deno runtime itself |
-| `deno doc <pkg>` | View package documentation |
-| `deno deploy --prod` | Deploy to Deno Deploy |
+| Command              | Purpose                          |
+| -------------------- | -------------------------------- |
+| `deno run file.ts`   | Run a TypeScript/JavaScript file |
+| `deno task <name>`   | Run a task from deno.json        |
+| `deno fmt`           | Format code                      |
+| `deno lint`          | Lint code                        |
+| `deno test`          | Run tests                        |
+| `deno add <pkg>`     | Add a package                    |
+| `deno install`       | Install dependencies             |
+| `deno update`        | Update project dependencies      |
+| `deno upgrade`       | Update Deno runtime itself       |
+| `deno doc <pkg>`     | View package documentation       |
+| `deno deploy --prod` | Deploy to Deno Deploy            |
 
 ## Common Mistakes
 
 **Using old URL-based imports instead of JSR**
 
-The old URL-based imports are deprecated. Always use `jsr:` imports with bare specifiers instead.
+The old URL-based imports are deprecated. Always use `jsr:` imports with bare
+specifiers instead.
 
 ```ts
 // ✅ Correct - use JSR and a bare specifier
@@ -209,7 +233,9 @@ import { join } from "@std/path";
 }
 ```
 
-Inline specifiers are fine in single file scripts, but if a deno.json exists then it should go there. It's preferable to place npm dependencies in a package.json if a package.json exists.
+Inline specifiers are fine in single file scripts, but if a deno.json exists
+then it should go there. It's preferable to place npm dependencies in a
+package.json if a package.json exists.
 
 **Forgetting to run fmt/lint before committing**
 
@@ -227,7 +253,8 @@ deno fmt && deno lint && git add . && git commit -m "changes"
 deno run --allow-net server.ts
 ```
 
-Without permission flags, Deno will show "Requires net access" errors. Always grant the specific permissions your code needs.
+Without permission flags, Deno will show "Requires net access" errors. Always
+grant the specific permissions your code needs.
 
 **Not using `deno add` for dependencies**
 
@@ -236,4 +263,5 @@ Without permission flags, Deno will show "Requires net access" errors. Always gr
 deno add jsr:@std/http
 ```
 
-Using `deno add` ensures your lockfile stays in sync. Manually editing imports without updating deno.json works but misses lockfile benefits.
+Using `deno add` ensures your lockfile stays in sync. Manually editing imports
+without updating deno.json works but misses lockfile benefits.

@@ -21,40 +21,44 @@ You have three options for DNS setup:
 
 Best option if your registrar supports ANAME or ALIAS records.
 
-| Record Type | Name | Value |
-|-------------|------|-------|
-| ANAME/ALIAS | `@` | `<your-app>.deno.dev` |
-| CNAME | `_acme-challenge` | (provided in dashboard) |
+| Record Type | Name              | Value                   |
+| ----------- | ----------------- | ----------------------- |
+| ANAME/ALIAS | `@`               | `<your-app>.deno.dev`   |
+| CNAME       | `_acme-challenge` | (provided in dashboard) |
 
 ### Option 2: CNAME
 
-Works for subdomains (like `api.example.com`) but **not for apex domains** (like `example.com`).
+Works for subdomains (like `api.example.com`) but **not for apex domains** (like
+`example.com`).
 
-| Record Type | Name | Value |
-|-------------|------|-------|
-| CNAME | `api` | `<your-app>.deno.dev` |
-| CNAME | `_acme-challenge.api` | (provided in dashboard) |
+| Record Type | Name                  | Value                   |
+| ----------- | --------------------- | ----------------------- |
+| CNAME       | `api`                 | `<your-app>.deno.dev`   |
+| CNAME       | `_acme-challenge.api` | (provided in dashboard) |
 
 ### Option 3: A Record
 
 Most compatible, works with any registrar.
 
-| Record Type | Name | Value |
-|-------------|------|-------|
-| A | `@` | (IP provided in dashboard) |
-| CNAME | `_acme-challenge` | (provided in dashboard) |
+| Record Type | Name              | Value                      |
+| ----------- | ----------------- | -------------------------- |
+| A           | `@`               | (IP provided in dashboard) |
+| CNAME       | `_acme-challenge` | (provided in dashboard)    |
 
 **Note:** IPv6 is not supported with the A record method.
 
 ## Cloudflare Users
 
-If using Cloudflare, **disable proxying** (turn off the orange cloud) on the `_acme-challenge` CNAME record. Proxying prevents certificate verification from completing.
+If using Cloudflare, **disable proxying** (turn off the orange cloud) on the
+`_acme-challenge` CNAME record. Proxying prevents certificate verification from
+completing.
 
 ## SSL/TLS Certificates
 
 ### Automatic Certificates (Recommended)
 
 After DNS verification completes:
+
 1. Click "Provision Certificate" in the dashboard
 2. Let's Encrypt generates your certificate
 3. Certificates renew automatically
@@ -62,6 +66,7 @@ After DNS verification completes:
 ### Bring Your Own Certificate
 
 If you need a specific certificate:
+
 1. Upload your PEM-formatted certificate file
 2. Upload your private key file
 3. **You must manage renewal** - notifications arrive 14 days before expiration
@@ -77,11 +82,11 @@ If you need a specific certificate:
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Verification stuck | Check DNS propagation (can take up to 48 hours) |
+| Issue                       | Solution                                                  |
+| --------------------------- | --------------------------------------------------------- |
+| Verification stuck          | Check DNS propagation (can take up to 48 hours)           |
 | Certificate won't provision | Ensure `_acme-challenge` CNAME is correct and not proxied |
-| IPv6 not working | Use ANAME/ALIAS or CNAME instead of A record |
+| IPv6 not working            | Use ANAME/ALIAS or CNAME instead of A record              |
 
 ## Documentation
 

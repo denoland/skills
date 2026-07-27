@@ -1,27 +1,35 @@
 # Framework-Specific Deployment
 
-Deno Deploy supports multiple frameworks. The CLI auto-detects your framework and configures the build appropriately.
+Deno Deploy supports multiple frameworks. The CLI auto-detects your framework
+and configures the build appropriately.
 
 ## Framework Detection
 
-| Framework | Detection Files | Build Command | Notes |
-|-----------|-----------------|---------------|-------|
-| **Fresh** | `islands/`, `fresh.config.ts` | `deno task build` | Deno-native, island architecture |
-| **Astro** | `astro.config.mjs`, `astro.config.ts` | `npm run build` or `deno task build` | Static or SSR |
-| **Next.js** | `next.config.js`, `next.config.mjs` | `npm run build` | Requires `nodeModulesDir: "auto"` |
-| **Nuxt** | `nuxt.config.ts` | `npm run build` | Vue SSR framework |
-| **Remix** | `remix.config.js` | `npm run build` | React SSR framework |
-| **SolidStart** | `app.config.ts` with solid | `npm run build` | SolidJS SSR |
-| **SvelteKit** | `svelte.config.js` | `npm run build` | Svelte SSR framework |
-| **Lume** | `_config.ts` with lume import | `deno task build` | Deno-native static site |
+| Framework      | Detection Files                       | Build Command                        | Notes                             |
+| -------------- | ------------------------------------- | ------------------------------------ | --------------------------------- |
+| **Fresh**      | `islands/`, `fresh.config.ts`         | `deno task build`                    | Deno-native, island architecture  |
+| **Astro**      | `astro.config.mjs`, `astro.config.ts` | `npm run build` or `deno task build` | Static or SSR                     |
+| **Next.js**    | `next.config.js`, `next.config.mjs`   | `npm run build`                      | Requires `nodeModulesDir: "auto"` |
+| **Nuxt**       | `nuxt.config.ts`                      | `npm run build`                      | Vue SSR framework                 |
+| **Remix**      | `remix.config.js`                     | `npm run build`                      | React SSR framework               |
+| **SolidStart** | `app.config.ts` with solid            | `npm run build`                      | SolidJS SSR                       |
+| **SvelteKit**  | `svelte.config.js`                    | `npm run build`                      | Svelte SSR framework              |
+| **Lume**       | `_config.ts` with lume import         | `deno task build`                    | Deno-native static site           |
 
 ## Framework Presets for `deno deploy create`
 
-When creating an app with `deno deploy create` in non-interactive mode, you can specify `--framework-preset` to auto-configure build commands and runtime settings. The available presets are: `Fresh`, `Next`, `Remix`, `Astro`, `SvelteKit`, `Nuxt`, `Lume`, `SolidStart`.
+When creating an app with `deno deploy create` in non-interactive mode, you can
+specify `--framework-preset` to auto-configure build commands and runtime
+settings. The available presets are: `Fresh`, `Next`, `Remix`, `Astro`,
+`SvelteKit`, `Nuxt`, `Lume`, `SolidStart`.
 
-When a preset is specified, you can omit `--install-command`, `--build-command`, `--pre-deploy-command`, and `--runtime-mode` — they are inferred from the preset.
+When a preset is specified, you can omit `--install-command`, `--build-command`,
+`--pre-deploy-command`, and `--runtime-mode` — they are inferred from the
+preset.
 
-If you don't specify a preset, the CLI still auto-detects your framework from the project files. Use `--do-not-use-detected-build-config` to skip auto-detection and specify everything manually.
+If you don't specify a preset, the CLI still auto-detects your framework from
+the project files. Use `--do-not-use-detected-build-config` to skip
+auto-detection and specify everything manually.
 
 ## Detect Framework Script
 
@@ -45,7 +53,9 @@ deno deploy --prod
 
 ## Fresh + PostgreSQL
 
-When a Fresh app uses PostgreSQL (e.g., `await initDb()` at startup), you must provision the database **before** the app can successfully warm up. The Fresh auto-detection preset also has a known issue, so use manual build config.
+When a Fresh app uses PostgreSQL (e.g., `await initDb()` at startup), you must
+provision the database **before** the app can successfully warm up. The Fresh
+auto-detection preset also has a known issue, so use manual build config.
 
 **Complete deployment sequence:**
 
@@ -73,13 +83,20 @@ deno deploy --prod
 ```
 
 **Why this order matters:**
-- Fresh + PostgreSQL apps typically call `await initDb()` in `main.ts`, which runs during warmup
-- If no database is assigned, the connection fails and the deploy is marked as failed
-- Using `--no-wait` on the first deploy lets you continue to the database setup without blocking
+
+- Fresh + PostgreSQL apps typically call `await initDb()` in `main.ts`, which
+  runs during warmup
+- If no database is assigned, the connection fails and the deploy is marked as
+  failed
+- Using `--no-wait` on the first deploy lets you continue to the database setup
+  without blocking
 
 **Why `--do-not-use-detected-build-config`:**
-- The Fresh auto-detection and `--framework-preset fresh` can fail with an API error
-- Manual build config is more reliable — see [Troubleshooting](TROUBLESHOOTING.md#fresh-auto-detection--preset-fails)
+
+- The Fresh auto-detection and `--framework-preset fresh` can fail with an API
+  error
+- Manual build config is more reliable — see
+  [Troubleshooting](TROUBLESHOOTING.md#fresh-auto-detection--preset-fails)
 
 ## Astro
 
@@ -122,6 +139,7 @@ deno deploy --prod
 ```
 
 If you encounter issues with node_modules:
+
 ```bash
 deno deploy --prod --allow-node-modules
 ```
