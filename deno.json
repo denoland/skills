@@ -6,6 +6,5 @@
   "imports": {
     "@std/fs": "jsr:@std/fs@^1",
     "@std/path": "jsr:@std/path@^1"
-  },
-  "exclude": ["skills/*/assets/"]
+  }
 }

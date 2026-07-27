@@ -4,7 +4,7 @@ description: Use when writing, running, configuring, reviewing, or debugging cod
 license: MIT
 metadata:
   author: denoland
-  version: "3.0"
+  version: "1.0"
 ---
 
 # Deno
@@ -100,9 +100,11 @@ it from `package-lock.json` or `yarn.lock`, preserving existing pins.
 
 ### node_modules layout
 
-By default Deno uses an isolated, pnpm-style layout: real files live in
-`node_modules/.deno/` and are exposed through symlinks. Most tools are fine with
-this. For a tool that requires npm's flat hoisted tree:
+A `deno.json`-only project has no `node_modules` at all — dependencies resolve
+from the global cache. A project with a `package.json` gets one, and when a
+`node_modules` directory is used the layout is isolated and pnpm-style: real
+files live in `node_modules/.deno/` and are exposed through symlinks. Most tools
+are fine with this. For a tool that requires npm's flat hoisted tree:
 
 ```json
 {

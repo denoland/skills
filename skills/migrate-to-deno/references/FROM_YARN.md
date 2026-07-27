@@ -14,10 +14,17 @@ the same dependencies, and runs the same scripts.
 | `yarn remove <pkg>`       | `deno remove <pkg>`               |
 | `yarn <script>`           | `deno task <script>`              |
 | `yarn dlx <pkg>`          | `dx <pkg>`                        |
-| `yarn outdated`           | `deno outdated`                   |
 | `yarn why <pkg>`          | `deno why <pkg>`                  |
 | `yarn workspaces foreach` | `deno task --filter '*' <script>` |
-| `yarn --immutable` (CI)   | `deno ci`                         |
+
+Classic (v1) and Berry (v2+) diverge on the rest, so the mapping is not uniform.
+Deno has one spelling regardless of which the project came from:
+
+| Task       | Yarn Classic (v1)                | Yarn Berry (v2+)           | Deno            |
+| ---------- | -------------------------------- | -------------------------- | --------------- |
+| CI install | `yarn install --frozen-lockfile` | `yarn install --immutable` | `deno ci`       |
+| Outdated   | `yarn outdated`                  | removed                    | `deno outdated` |
+| Audit      | `yarn audit`                     | `yarn npm audit`           | `deno audit`    |
 
 ## Plug'n'Play — the main incompatibility
 
