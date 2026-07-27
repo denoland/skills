@@ -2,13 +2,15 @@
 
 ## Overview
 
-Deno Deploy provides built-in database support with automatic environment isolation. You don't need to manage connection strings or worry about mixing production and development data.
+Deno Deploy provides built-in database support with automatic environment
+isolation. You don't need to manage connection strings or worry about mixing
+production and development data.
 
 ## Available Database Engines
 
-| Engine | Description |
-|--------|-------------|
-| **Deno KV** | Fast, globally distributed key-value store hosted by Deno |
+| Engine         | Description                                                          |
+| -------------- | -------------------------------------------------------------------- |
+| **Deno KV**    | Fast, globally distributed key-value store hosted by Deno            |
 | **PostgreSQL** | Connect your own PostgreSQL or provision managed Postgres via Prisma |
 
 ## Key Concept: Timelines
@@ -77,8 +79,8 @@ Run queries directly from the CLI:
 deno deploy database query my-database production "SELECT * FROM users LIMIT 10"
 ```
 
-The second argument is the timeline name (e.g., `production`, `preview`, or a branch name), 
-which can be found in the output of `deno deploy database list`.
+The second argument is the timeline name (e.g., `production`, `preview`, or a
+branch name), which can be found in the output of `deno deploy database list`.
 
 ### Delete a Database
 
@@ -101,10 +103,12 @@ const kv = await Deno.openKv();
 
 ### PostgreSQL
 
-Deno Deploy injects standard environment variables that most PostgreSQL libraries detect automatically:
+Deno Deploy injects standard environment variables that most PostgreSQL
+libraries detect automatically:
 
 - `DATABASE_URL` - Full connection string
-- `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` - Individual components
+- `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` - Individual
+  components
 
 ```typescript
 // Recommended: npm:pg (best PostgreSQL driver for Deno Deploy)
@@ -117,7 +121,8 @@ const { rows } = await pool.query("SELECT * FROM users");
 
 ### With Tunnel
 
-Use `--tunnel` to connect your local dev server to your hosted development database:
+Use `--tunnel` to connect your local dev server to your hosted development
+database:
 
 ```bash
 deno task --tunnel dev
@@ -132,7 +137,8 @@ This gives you access to the same database environment variables locally.
 
 ## Migrations
 
-Deno Deploy supports pre-deploy commands that run before each deployment. Use these for database migrations:
+Deno Deploy supports pre-deploy commands that run before each deployment. Use
+these for database migrations:
 
 ```json
 {
@@ -144,7 +150,8 @@ Deno Deploy supports pre-deploy commands that run before each deployment. Use th
 
 ## Sharing Databases
 
-Multiple apps can share the same database instance. Each app gets its own isolated databases per timeline, even when sharing.
+Multiple apps can share the same database instance. Each app gets its own
+isolated databases per timeline, even when sharing.
 
 ## Documentation
 

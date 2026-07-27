@@ -11,7 +11,10 @@ metadata:
 
 ## Overview
 
-This skill covers frontend development in Deno using Fresh 2.x (Deno's web framework), Preact (a lightweight React alternative), and Tailwind CSS. Fresh uses "island architecture" where pages render on the server and only interactive parts ship JavaScript to the browser.
+This skill covers frontend development in Deno using Fresh 2.x (Deno's web
+framework), Preact (a lightweight React alternative), and Tailwind CSS. Fresh
+uses "island architecture" where pages render on the server and only interactive
+parts ship JavaScript to the browser.
 
 ## When to Use This Skill
 
@@ -26,19 +29,29 @@ Apply these practices when building web applications in Deno.
 
 ## Scope Boundaries
 
-This skill applies **only** to Fresh/Deno frontend questions. Follow these rules:
+This skill applies **only** to Fresh/Deno frontend questions. Follow these
+rules:
 
-- If the user asks about **Next.js, React Native, Vue, Svelte, Angular, or any other framework**, answer using that framework directly. Do not suggest Fresh alternatives.
-- Do not include Fresh imports, `useSignal`, island patterns, or Fresh project structure in responses about other frameworks.
-- Only recommend Fresh when the user explicitly asks about Fresh or is working in a Fresh/Deno project.
+- If the user asks about **Next.js, React Native, Vue, Svelte, Angular, or any
+  other framework**, answer using that framework directly. Do not suggest Fresh
+  alternatives.
+- Do not include Fresh imports, `useSignal`, island patterns, or Fresh project
+  structure in responses about other frameworks.
+- Only recommend Fresh when the user explicitly asks about Fresh or is working
+  in a Fresh/Deno project.
 
 ## CRITICAL: Never Show Deprecated Syntax
 
-When helping users migrate from Fresh 1.x, describe old patterns generically and ONLY show correct Fresh 2.x code. Never write out old dollar-sign import paths or deprecated syntax, even in "before/after" comparisons.
+When helping users migrate from Fresh 1.x, describe old patterns generically and
+ONLY show correct Fresh 2.x code. Never write out old dollar-sign import paths
+or deprecated syntax, even in "before/after" comparisons.
 
-- Say "Replace the old dollar-sign import paths with stable Fresh 2.x imports" — then show only the correct `from "fresh"` approach
-- Do NOT write `❌ Old: import { App } from "$fresh/server.ts"` — this is never acceptable, even as a negative example
-- The strings `_404.tsx` and `_500.tsx` must never appear in your response, even when comparing Fresh 2.x to 1.x. Say "the old separate error pages" instead.
+- Say "Replace the old dollar-sign import paths with stable Fresh 2.x imports" —
+  then show only the correct `from "fresh"` approach
+- Do NOT write `❌ Old: import { App } from "$fresh/server.ts"` — this is never
+  acceptable, even as a negative example
+- The strings `_404.tsx` and `_500.tsx` must never appear in your response, even
+  when comparing Fresh 2.x to 1.x. Say "the old separate error pages" instead.
 
 Only demonstrate Fresh 2.x patterns.
 
@@ -46,14 +59,19 @@ Only demonstrate Fresh 2.x patterns.
 
 **Always use Fresh 2.x patterns.** Fresh 1.x is deprecated. Key differences:
 
-- Fresh 2.x uses `import { App } from "fresh"` — the old dollar-sign import paths are deprecated
-- Fresh 2.x has no manifest file — the old auto-generated manifest is no longer needed
+- Fresh 2.x uses `import { App } from "fresh"` — the old dollar-sign import
+  paths are deprecated
+- Fresh 2.x has no manifest file — the old auto-generated manifest is no longer
+  needed
 - Fresh 2.x uses `vite.config.ts` for dev — the old `dev.ts` entry point is gone
 - Fresh 2.x configures via `new App()` — the old config file is no longer used
-- Fresh 2.x handlers take a single `(ctx)` parameter — the old two-parameter signature is deprecated
-- Fresh 2.x uses a unified `_error.tsx` — the old separate error pages are replaced
+- Fresh 2.x handlers take a single `(ctx)` parameter — the old two-parameter
+  signature is deprecated
+- Fresh 2.x uses a unified `_error.tsx` — the old separate error pages are
+  replaced
 
 **Always use Fresh 2.x stable imports:**
+
 ```typescript
 // ✅ CORRECT - Fresh 2.x stable
 import { App, staticFiles } from "fresh";
@@ -64,7 +82,9 @@ import { define } from "./utils/state.ts"; // Project-local define helpers
 
 Reference: https://fresh.deno.dev/docs
 
-Fresh is Deno's web framework. It uses **island architecture** - pages are rendered on the server, and only interactive parts ("islands") get JavaScript on the client.
+Fresh is Deno's web framework. It uses **island architecture** - pages are
+rendered on the server, and only interactive parts ("islands") get JavaScript on
+the client.
 
 ### Creating a Fresh Project
 
@@ -97,7 +117,8 @@ my-project/
     └── state.ts        # Define helpers for type safety
 ```
 
-**Note:** Fresh 2.x does not use a manifest file, a separate dev entry point, or a separate config file.
+**Note:** Fresh 2.x does not use a manifest file, a separate dev entry point, or
+a separate config file.
 
 ### main.ts (Fresh 2.x Entry Point)
 
@@ -168,29 +189,32 @@ deno add npm:@tailwindcss/vite  # npm packages
 
 ```typescript
 // Core Fresh imports
-import { App, staticFiles, fsRoutes } from "fresh";
-import { trailingSlashes, cors, csp } from "fresh";
+import { App, fsRoutes, staticFiles } from "fresh";
+import { cors, csp, trailingSlashes } from "fresh";
 import { createDefine, HttpError } from "fresh";
-import type { PageProps, Middleware, RouteConfig } from "fresh";
+import type { Middleware, PageProps, RouteConfig } from "fresh";
 
 // Runtime imports (for client-side checks)
 import { IS_BROWSER } from "fresh/runtime";
 
 // Preact
-import { useSignal, signal, computed } from "@preact/signals";
-import { useState, useEffect, useRef } from "preact/hooks";
+import { computed, signal, useSignal } from "@preact/signals";
+import { useEffect, useRef, useState } from "preact/hooks";
 ```
 
 ### Key Concepts
 
 **Routes (`routes/` folder)**
+
 - File-based routing: `routes/about.tsx` → `/about`
 - Dynamic routes: `routes/blog/[slug].tsx` → `/blog/my-post`
 - Optional segments: `routes/docs/[[version]].tsx` → `/docs` or `/docs/v2`
 - Catch-all routes: `routes/old/[...path].tsx` → `/old/foo/bar`
-- Route groups: `routes/(marketing)/` for shared layouts without URL path changes
+- Route groups: `routes/(marketing)/` for shared layouts without URL path
+  changes
 
 **Layouts (`_app.tsx`)**
+
 ```tsx
 import type { PageProps } from "fresh";
 
@@ -211,6 +235,7 @@ export default function App({ Component }: PageProps) {
 ```
 
 **Async Server Components**
+
 ```tsx
 export default async function Page() {
   const data = await fetchData(); // Runs on server only
@@ -220,11 +245,15 @@ export default async function Page() {
 
 ## Data Fetching Patterns
 
-Fresh 2.x provides two approaches for fetching data on the server. The handler pattern is the recommended default because it demonstrates the full Fresh 2.x architecture and provides the most flexibility.
+Fresh 2.x provides two approaches for fetching data on the server. The handler
+pattern is the recommended default because it demonstrates the full Fresh 2.x
+architecture and provides the most flexibility.
 
 ### Approach A: Handler with Data Object (Recommended)
 
-Use this as the default for data fetching. It uses the full Fresh 2.x handler pattern with typed data passing. Always show the complete setup including `utils/state.ts` when demonstrating this pattern.
+Use this as the default for data fetching. It uses the full Fresh 2.x handler
+pattern with typed data passing. Always show the complete setup including
+`utils/state.ts` when demonstrating this pattern.
 
 ```tsx
 // utils/state.ts - one-time setup for type-safe handlers
@@ -261,11 +290,13 @@ export default define.page<typeof handler>(({ data }) => {
 });
 ```
 
-This approach also supports auth checks, redirects, and other logic before rendering.
+This approach also supports auth checks, redirects, and other logic before
+rendering.
 
 ### Approach B: Async Server Components (Shorthand)
 
-For the simplest cases where you just need to fetch and display data with no auth or redirects:
+For the simplest cases where you just need to fetch and display data with no
+auth or redirects:
 
 ```tsx
 // routes/servers.tsx
@@ -295,13 +326,18 @@ Need to fetch data on server?
 
 ## Handlers and Define Helpers (Fresh 2.x)
 
-Fresh 2.x uses a **single context parameter** pattern for handlers. Always use `(ctx)` as the only parameter.
+Fresh 2.x uses a **single context parameter** pattern for handlers. Always use
+`(ctx)` as the only parameter.
 
-**Important:** When demonstrating any handler pattern (data fetching, form handling, API routes, auth), always show or reference the `utils/state.ts` setup which imports `createDefine` from `"fresh"`. This ensures the complete Fresh 2.x architecture is visible.
+**Important:** When demonstrating any handler pattern (data fetching, form
+handling, API routes, auth), always show or reference the `utils/state.ts` setup
+which imports `createDefine` from `"fresh"`. This ensures the complete Fresh 2.x
+architecture is visible.
 
 ### Route Handlers
 
-Always use `define.handlers()` for type-safe route handlers in file-based routes:
+Always use `define.handlers()` for type-safe route handlers in file-based
+routes:
 
 ```tsx
 // routes/api/users.ts
@@ -324,7 +360,8 @@ export const handler = define.handlers({
 });
 ```
 
-Note: Bare handler exports (`export const handler = (ctx) => {...}`) also work but lose TypeScript type safety. Prefer `define.handlers()`.
+Note: Bare handler exports (`export const handler = (ctx) => {...}`) also work
+but lose TypeScript type safety. Prefer `define.handlers()`.
 
 ### The Context Object
 
@@ -433,7 +470,8 @@ export const handler = define.handlers({
 
 ## Islands (Interactive Components)
 
-Islands are components that get hydrated (made interactive) on the client. Place them in the `islands/` folder or `(_islands)` folder within routes.
+Islands are components that get hydrated (made interactive) on the client. Place
+them in the `islands/` folder or `(_islands)` folder within routes.
 
 ### When to Use Islands
 
@@ -479,10 +517,12 @@ export default function LocalStorageCounter() {
   const count = useSignal(stored ? parseInt(stored) : 0);
 
   return (
-    <button onClick={() => {
-      count.value++;
-      localStorage.setItem("count", String(count.value));
-    }}>
+    <button
+      onClick={() => {
+        count.value++;
+        localStorage.setItem("count", String(count.value));
+      }}
+    >
       Count: {count.value}
     </button>
   );
@@ -492,6 +532,7 @@ export default function LocalStorageCounter() {
 ### Island Props (Serializable Types)
 
 Islands can receive these prop types:
+
 - Primitives: string, number, boolean, bigint, undefined, null
 - Special values: Infinity, -Infinity, NaN, -0
 - Collections: Array, Map, Set
@@ -514,16 +555,16 @@ Preact is a 3KB alternative to React. Fresh uses Preact instead of React.
 
 ### Preact vs React Differences
 
-| Preact | React |
-|--------|-------|
-| `class` works | `className` required |
-| `@preact/signals` | `useState` |
-| 3KB bundle | ~40KB bundle |
+| Preact            | React                |
+| ----------------- | -------------------- |
+| `class` works     | `className` required |
+| `@preact/signals` | `useState`           |
+| 3KB bundle        | ~40KB bundle         |
 
 ### Hooks (Same as React)
 
 ```tsx
-import { useState, useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 
 function MyComponent() {
   const [value, setValue] = useState(0);
@@ -542,7 +583,7 @@ function MyComponent() {
 Signals are Preact's more efficient alternative to useState:
 
 ```tsx
-import { signal, computed } from "@preact/signals";
+import { computed, signal } from "@preact/signals";
 
 const count = signal(0);
 const doubled = computed(() => count.value * 2);
@@ -559,13 +600,16 @@ function Counter() {
 ```
 
 Benefits of signals:
+
 - More granular updates (only re-renders what changed)
 - Can be defined outside components
 - Cleaner code for shared state
 
 ## Tailwind CSS in Fresh (Optional)
 
-Tailwind CSS is optional—you don't need it to build a great Fresh app. However, many developers prefer it for rapid styling. Fresh 2.x uses Vite for builds, so Tailwind integrates via the Vite plugin.
+Tailwind CSS is optional—you don't need it to build a great Fresh app. However,
+many developers prefer it for rapid styling. Fresh 2.x uses Vite for builds, so
+Tailwind integrates via the Vite plugin.
 
 ### Setup
 
@@ -575,9 +619,11 @@ Install both Tailwind packages:
 deno add npm:@tailwindcss/vite npm:tailwindcss
 ```
 
-**Important:** You need both packages. `@tailwindcss/vite` is the Vite plugin, and `tailwindcss` is the core library it depends on.
+**Important:** You need both packages. `@tailwindcss/vite` is the Vite plugin,
+and `tailwindcss` is the core library it depends on.
 
 Configure Vite in `vite.config.ts`:
+
 ```typescript
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -588,11 +634,13 @@ export default defineConfig({
 ```
 
 Add the Tailwind import to your CSS file (e.g., `assets/styles.css`):
+
 ```css
 @import "tailwindcss";
 ```
 
 Then import this CSS file in your `client.ts`:
+
 ```typescript
 import "./assets/styles.css";
 ```
@@ -612,13 +660,14 @@ export default function Button({ children }) {
 ### Best Practices
 
 1. **Prefer utility classes** over `@apply`
-2. **Use `class` not `className`** (Preact supports both, but `class` is simpler)
+2. **Use `class` not `className`** (Preact supports both, but `class` is
+   simpler)
 3. **Dark mode**: Use `class` strategy in tailwind.config.js
 
 ```tsx
 <div class="bg-white dark:bg-gray-900">
   <p class="text-gray-900 dark:text-white">Hello</p>
-</div>
+</div>;
 ```
 
 ## Building and Deploying
@@ -645,15 +694,15 @@ deno deploy --prod        # Deploy to production
 
 ## Quick Reference
 
-| Task | Command/Pattern |
-|------|-----------------|
-| Create Fresh project | `deno run -Ar jsr:@fresh/init` |
-| Start dev server | `deno task dev` (port 5173) |
-| Build for production | `deno task build` |
-| Add a page | Create `routes/pagename.tsx` |
-| Add an API route | Create `routes/api/endpoint.ts` |
-| Add interactive component | Create `islands/ComponentName.tsx` |
-| Add static component | Create `components/ComponentName.tsx` |
+| Task                      | Command/Pattern                       |
+| ------------------------- | ------------------------------------- |
+| Create Fresh project      | `deno run -Ar jsr:@fresh/init`        |
+| Start dev server          | `deno task dev` (port 5173)           |
+| Build for production      | `deno task build`                     |
+| Add a page                | Create `routes/pagename.tsx`          |
+| Add an API route          | Create `routes/api/endpoint.ts`       |
+| Add interactive component | Create `islands/ComponentName.tsx`    |
+| Add static component      | Create `components/ComponentName.tsx` |
 
 ## Common Mistakes
 
@@ -661,7 +710,8 @@ deno deploy --prod        # Deploy to production
 
 **Using old import specifiers**
 
-The old dollar-sign Fresh import paths and alpha version imports are deprecated. Always use the stable `fresh` package:
+The old dollar-sign Fresh import paths and alpha version imports are deprecated.
+Always use the stable `fresh` package:
 
 ```tsx
 // ✅ CORRECT - Fresh 2.x stable imports
@@ -671,20 +721,22 @@ import type { PageProps } from "fresh";
 
 **Using two-parameter handlers**
 
-The old two-parameter handler signature is deprecated. Fresh 2.x uses a single context parameter:
+The old two-parameter handler signature is deprecated. Fresh 2.x uses a single
+context parameter:
 
 ```tsx
 // ✅ CORRECT - Fresh 2.x uses single context parameter
 export const handler = {
-  GET(ctx) {  // Single ctx param
+  GET(ctx) { // Single ctx param
     return ctx.render(<MyPage />);
-  }
+  },
 };
 ```
 
 **Creating legacy files**
 
-Fresh 2.x does not use a manifest file, a separate dev entry point, or a separate config file. The correct Fresh 2.x file structure is:
+Fresh 2.x does not use a manifest file, a separate dev entry point, or a
+separate config file. The correct Fresh 2.x file structure is:
 
 ```
 main.ts           # Server entry
@@ -694,24 +746,27 @@ vite.config.ts    # Vite config
 
 **Using deprecated context methods**
 
-The old `renderNotFound()`, bare `render()` without JSX, and `basePath` patterns are deprecated. Use these Fresh 2.x patterns instead:
+The old `renderNotFound()`, bare `render()` without JSX, and `basePath` patterns
+are deprecated. Use these Fresh 2.x patterns instead:
 
 ```tsx
 // ✅ CORRECT - Fresh 2.x patterns
-throw new HttpError(404)
-ctx.render(<MyComponent />)
-ctx.config.basePath
+throw new HttpError(404);
+ctx.render(<MyComponent />);
+ctx.config.basePath;
 ```
 
 **Passing data from handlers to pages (VERY COMMON MISTAKE)**
 
-This is a frequent error. In Fresh 2.x, you cannot pass data through `ctx.render()`. Instead, return an object with a `data` property from the handler:
+This is a frequent error. In Fresh 2.x, you cannot pass data through
+`ctx.render()`. Instead, return an object with a `data` property from the
+handler:
 
 ```tsx
 // ✅ CORRECT - Return object with data property from handler
 export const handler = define.handlers(async (ctx) => {
   const servers = await getServers();
-  return { data: { servers } };  // Return { data: {...} } object
+  return { data: { servers } }; // Return { data: {...} } object
 });
 
 // ✅ CORRECT - Link page to handler type with typeof
@@ -728,7 +783,8 @@ export default async function ServersPage() {
 
 **Old task commands in deno.json**
 
-The old task commands that reference `dev.ts` are deprecated. Use the Vite-based tasks:
+The old task commands that reference `dev.ts` are deprecated. Use the Vite-based
+tasks:
 
 ```json
 // ✅ CORRECT - Fresh 2.x tasks
@@ -744,6 +800,7 @@ The old task commands that reference `dev.ts` are deprecated. Use the Vite-based
 ### Island Mistakes
 
 **Putting too much JavaScript in islands**
+
 ```tsx
 // ❌ Wrong - entire page as an island (ships all JS to client)
 // islands/HomePage.tsx
@@ -774,6 +831,7 @@ export default function HomePage() {
 ```
 
 **Passing non-serializable props to islands**
+
 ```tsx
 // ❌ Wrong - functions can't be serialized
 <Counter onUpdate={(val) => console.log(val)} />
@@ -785,6 +843,7 @@ export default function HomePage() {
 ### Other Common Mistakes
 
 **Using `className` instead of `class`**
+
 ```tsx
 // ❌ Works but unnecessary in Preact
 <div className="container">
@@ -794,6 +853,7 @@ export default function HomePage() {
 ```
 
 **Forgetting to build before deploying Fresh 2.x**
+
 ```bash
 # ❌ Wrong - Fresh 2.x requires a build step
 deno deploy --prod
@@ -804,23 +864,35 @@ deno deploy --prod
 ```
 
 **Creating islands for non-interactive content**
+
 ```tsx
 // ❌ Wrong - this doesn't need to be an island (no interactivity)
 // islands/StaticCard.tsx
 export default function StaticCard({ title, body }) {
-  return <div class="card"><h2>{title}</h2><p>{body}</p></div>;
+  return (
+    <div class="card">
+      <h2>{title}</h2>
+      <p>{body}</p>
+    </div>
+  );
 }
 
 // ✅ Correct - use a regular component (no JS shipped)
 // components/StaticCard.tsx
 export default function StaticCard({ title, body }) {
-  return <div class="card"><h2>{title}</h2><p>{body}</p></div>;
+  return (
+    <div class="card">
+      <h2>{title}</h2>
+      <p>{body}</p>
+    </div>
+  );
 }
 ```
 
 **Using old Tailwind plugin**
 
-The old Fresh 1.x Tailwind plugin is deprecated. Fresh 2.x uses the Vite Tailwind plugin:
+The old Fresh 1.x Tailwind plugin is deprecated. Fresh 2.x uses the Vite
+Tailwind plugin:
 
 ```typescript
 // ✅ CORRECT - Fresh 2.x uses Vite Tailwind plugin
@@ -828,6 +900,7 @@ import tailwindcss from "@tailwindcss/vite";
 ```
 
 **Missing tailwindcss package**
+
 ```sh
 # Error: Can't resolve 'tailwindcss' in '/path/to/assets'
 
@@ -838,24 +911,31 @@ deno add npm:@tailwindcss/vite
 deno add npm:@tailwindcss/vite npm:tailwindcss
 ```
 
-The `@tailwindcss/vite` plugin requires the core `tailwindcss` package to be installed separately.
+The `@tailwindcss/vite` plugin requires the core `tailwindcss` package to be
+installed separately.
 
 ## Fresh Alpha Versions (2.0.0-alpha.*)
 
-Some projects use Fresh 2.x alpha releases (e.g., `@fresh/core@2.0.0-alpha.29`). These are **not Fresh 1.x** but use a different setup than stable Fresh 2.x:
+Some projects use Fresh 2.x alpha releases (e.g., `@fresh/core@2.0.0-alpha.29`).
+These are **not Fresh 1.x** but use a different setup than stable Fresh 2.x:
 
-| Alpha pattern | Stable 2.x pattern |
-|---|---|
-| `dev.ts` entry point | `vite.config.ts` |
-| `@fresh/plugin-tailwind` | `@tailwindcss/vite` |
-| `deno run -A --watch dev.ts` | `vite` |
-| Dev server on port 8000 | Dev server on port 5173 |
-| No `client.ts` | Requires `client.ts` |
-| `deno run -A dev.ts build` | `vite build` |
+| Alpha pattern                | Stable 2.x pattern      |
+| ---------------------------- | ----------------------- |
+| `dev.ts` entry point         | `vite.config.ts`        |
+| `@fresh/plugin-tailwind`     | `@tailwindcss/vite`     |
+| `deno run -A --watch dev.ts` | `vite`                  |
+| Dev server on port 8000      | Dev server on port 5173 |
+| No `client.ts`               | Requires `client.ts`    |
+| `deno run -A dev.ts build`   | `vite build`            |
 
-**IMPORTANT:** If you see `dev.ts` in a project with `@fresh/core@2.0.0-alpha.*` in `deno.json`, do NOT treat it as a Fresh 1.x artifact. It is the correct entry point for alpha versions. Check the `deno.json` imports to determine which version is in use before suggesting changes.
+**IMPORTANT:** If you see `dev.ts` in a project with `@fresh/core@2.0.0-alpha.*`
+in `deno.json`, do NOT treat it as a Fresh 1.x artifact. It is the correct entry
+point for alpha versions. Check the `deno.json` imports to determine which
+version is in use before suggesting changes.
 
-Alpha projects also use the handler pattern `define.handlers({ GET(ctx) { ... } })` which returns `{ data: {...} }` - this is the same as stable 2.x.
+Alpha projects also use the handler pattern
+`define.handlers({ GET(ctx) { ... } })` which returns `{ data: {...} }` - this
+is the same as stable 2.x.
 
 ## Migrating from Fresh 1.x to 2.x
 
@@ -866,6 +946,7 @@ deno run -Ar jsr:@fresh/update
 ```
 
 This tool automatically:
+
 - Converts old import paths to the new `fresh` package
 - Updates handler signatures to use the single `(ctx)` parameter
 - Removes legacy generated and config files
@@ -879,8 +960,10 @@ This tool automatically:
 If the tool misses anything:
 
 1. **Imports**: All Fresh imports should come from `fresh` or `fresh/runtime`
-2. **Handlers**: Should use single `(ctx)` parameter, access request via `ctx.req`
-3. **Files**: Remove any legacy generated files, dev entry points, or old config files
+2. **Handlers**: Should use single `(ctx)` parameter, access request via
+   `ctx.req`
+3. **Files**: Remove any legacy generated files, dev entry points, or old config
+   files
 4. **Tasks**: Update to `vite`, `vite build`, `deno serve -A _fresh/server.js`
 5. **Error pages**: Use a single unified `_error.tsx`
 6. **Tailwind**: Use `@tailwindcss/vite` (the Vite plugin)

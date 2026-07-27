@@ -2,7 +2,8 @@
 
 ## What is Deno KV?
 
-Deno KV is a key-value database built into Deno. On Deno Deploy, it's a fast, globally distributed store that requires no setup or configuration.
+Deno KV is a key-value database built into Deno. On Deno Deploy, it's a fast,
+globally distributed store that requires no setup or configuration.
 
 ## Quick Start
 
@@ -27,12 +28,8 @@ Keys are arrays of "key parts" that form a hierarchy:
 
 ```typescript
 // Simple key
-["settings"]
-
-// Hierarchical keys
-["users", "alice"]
-["users", "bob"]
-["posts", "2024", "01", "my-post"]
+["settings"] // Hierarchical keys
+  ["users", "alice"]["users", "bob"]["posts", "2024", "01", "my-post"];
 ```
 
 Key parts can be strings, numbers, booleans, Uint8Array, or bigints.
@@ -87,7 +84,7 @@ const bob = await kv.get<number>(["credits", "bob"]);
 
 const result = await kv.atomic()
   .check(alice) // Ensure alice hasn't changed
-  .check(bob)   // Ensure bob hasn't changed
+  .check(bob) // Ensure bob hasn't changed
   .set(["credits", "alice"], alice.value! - 100)
   .set(["credits", "bob"], bob.value! + 100)
   .commit();
@@ -124,11 +121,14 @@ Deno.serve(async () => {
 
 ## Data Location
 
-On Deno Deploy, KV data is replicated across at least three data centers in Northern Virginia (us-east-4). Cross-region replication is not currently available.
+On Deno Deploy, KV data is replicated across at least three data centers in
+Northern Virginia (us-east-4). Cross-region replication is not currently
+available.
 
 ## Local Development
 
-When running locally with `deno run`, KV data is stored in memory by default. For persistent local storage:
+When running locally with `deno run`, KV data is stored in memory by default.
+For persistent local storage:
 
 ```typescript
 // Persist to a local file
@@ -137,7 +137,8 @@ const kv = await Deno.openKv("./my-database.sqlite");
 
 ## Important Notes
 
-- **Deletion is permanent** - Deleting a KV instance removes all data with no recovery
+- **Deletion is permanent** - Deleting a KV instance removes all data with no
+  recovery
 - **Back up important data** before deleting instances
 - **No cross-region replication** yet - data lives in us-east-4
 
