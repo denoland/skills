@@ -1,0 +1,25 @@
+name: fmt
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      # The explicit path is required: without a deno.json at the root, a bare
+      # `deno fmt` refuses to format a non-workspace directory.
+      - run: deno fmt --check .

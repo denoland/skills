@@ -8,6 +8,7 @@ cd {{PROJECT_NAME}}
 ```
 
 This creates a complete Fresh project with all necessary files:
+
 - `deno.json` - Configuration
 - `main.ts` - Server entry point
 - `client.ts` - Client entry point
