@@ -43,9 +43,6 @@ const SNIPPET_CONFIG = {
   },
 };
 
-/** Type-checks run concurrently; each is a process spawn. */
-const CONCURRENCY = 8;
-
 interface Block {
   file: string;
   line: number;
@@ -137,44 +134,71 @@ const DENO_INVOCATION =
 /** Inline code spans, which is where reference tables keep their commands. */
 const INLINE_CODE = /`([^`\n]+)`/g;
 
-async function typeCheck(
-  block: Block,
+/**
+ * Type-check every snippet in one `deno check`, returning errors keyed by
+ * snippet index.
+ *
+ * One process rather than several concurrent ones is deliberate. Parallel
+ * `deno check` invocations race on the shared type cache when resolving
+ * `node:` built-ins, which made this fail intermittently on roughly a third of
+ * runs with a spurious "Cannot find name 'node:sqlite'". A single invocation is
+ * both race-free and faster than a pool.
+ */
+async function typeCheckAll(
+  blocks: Block[],
   dir: string,
-  index: number,
-): Promise<string | null> {
-  const ext = block.lang === "tsx" ? "tsx" : "ts";
-  const file = `${dir}/snippet_${index}.${ext}`;
-  await Deno.writeTextFile(file, block.body);
+): Promise<Map<number, string>> {
+  const errors = new Map<number, string>();
+  if (blocks.length === 0) return errors;
+
+  const files: string[] = [];
+  for (const [i, block] of blocks.entries()) {
+    const ext = block.lang === "tsx" ? "tsx" : "ts";
+    const file = `${dir}/snippet_${i}.${ext}`;
+    await Deno.writeTextFile(file, block.body);
+    files.push(file);
+  }
+
   const { success, stderr } = await new Deno.Command(Deno.execPath(), {
-    args: ["check", "--no-lock", "--config", `${dir}/deno.json`, file],
+    args: ["check", "--no-lock", "--config", `${dir}/deno.json`, ...files],
     stderr: "piped",
     stdout: "null",
   }).output();
-  if (success) return null;
-  return new TextDecoder().decode(stderr).trim().split("\n").slice(0, 4)
-    .join("\n");
-}
+  if (success) return errors;
 
-/** Run tasks with bounded concurrency, preserving input order. */
-async function pool<T, R>(
-  items: T[],
-  limit: number,
-  fn: (item: T, index: number) => Promise<R>,
-): Promise<R[]> {
-  const results = new Array<R>(items.length);
-  let next = 0;
-  const workers = Array.from(
-    { length: Math.min(limit, items.length) },
-    async () => {
-      while (true) {
-        const i = next++;
-        if (i >= items.length) return;
-        results[i] = await fn(items[i], i);
+  // deno check emits one paragraph per diagnostic, ending in an
+  // `at file:///…/snippet_N.ts:LINE:COL` location line. Attribute on that
+  // location, not on the first snippet name in the paragraph: the
+  // `Check file:///…` preamble lines run into the first diagnostic with no
+  // blank line between, so matching the first name blames the wrong snippet.
+  // Strip ANSI colour codes first — deno interleaves them inside the location
+  // line (`at <esc>file:///…`), which defeats any pattern matched against it.
+  const text = new TextDecoder().decode(stderr)
+    // deno-lint-ignore no-control-regex
+    .replace(/\x1b\[[0-9;]*m/g, "")
+    .split("\n")
+    .filter((l) => !/^(Check|Download) (file|https):/.test(l.trim()))
+    .join("\n");
+
+  let unattributed = "";
+  for (const para of text.split(/\n\s*\n/)) {
+    if (!para.trim()) continue;
+    const m = para.match(/at file:\S*?snippet_(\d+)\.tsx?:/);
+    if (!m) {
+      if (!/^\s*(Found \d+ error|error: Type checking failed)/.test(para)) {
+        unattributed += `${para.trim()}\n`;
       }
-    },
-  );
-  await Promise.all(workers);
-  return results;
+      continue;
+    }
+    const i = Number(m[1]);
+    const trimmed = para.trim().split("\n").slice(0, 4).join("\n");
+    errors.set(i, errors.has(i) ? `${errors.get(i)}\n${trimmed}` : trimmed);
+  }
+  // Never let a diagnostic vanish just because attribution failed.
+  if (errors.size === 0 && unattributed.trim()) {
+    errors.set(-1, unattributed.trim());
+  }
+  return errors;
 }
 
 const failures: string[] = [];
@@ -244,18 +268,12 @@ try {
     `${dir}/deno.json`,
     JSON.stringify(SNIPPET_CONFIG, null, 2),
   );
-  const results = await pool(
-    toCheck,
-    CONCURRENCY,
-    (block, i) => typeCheck(block, dir, i),
-  );
-  results.forEach((err, i) => {
-    if (err) {
-      failures.push(
-        `${toCheck[i].file}:${toCheck[i].line}  type check failed\n${err}`,
-      );
-    }
-  });
+  for (const [i, err] of await typeCheckAll(toCheck, dir)) {
+    const where = i === -1
+      ? "(unattributed)"
+      : `${toCheck[i].file}:${toCheck[i].line}`;
+    failures.push(`${where}  type check failed\n${err}`);
+  }
 } finally {
   await Deno.remove(dir, { recursive: true });
 }
