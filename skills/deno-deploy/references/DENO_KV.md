@@ -26,10 +26,15 @@ await kv.delete(["users", "alice"]);
 
 Keys are arrays of "key parts" that form a hierarchy:
 
+<!-- deno-fmt-ignore -->
 ```typescript
 // Simple key
-["settings"] // Hierarchical keys
-  ["users", "alice"]["users", "bob"]["posts", "2024", "01", "my-post"];
+["settings"]
+
+// Hierarchical keys
+["users", "alice"]
+["users", "bob"]
+["posts", "2024", "01", "my-post"]
 ```
 
 Key parts can be strings, numbers, booleans, Uint8Array, or bigints.
