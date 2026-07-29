@@ -20,8 +20,7 @@ TypeScript runs with no build step.
 
 There is usually **no code to change** — only which binary you invoke. Don't
 start by rewriting imports to `jsr:`, swapping dependencies for Deno-specific
-ones, or restructuring directories. Proposing that is the most common way this
-goes wrong.
+ones, or restructuring directories. None of it is required.
 
 ## Migrate in rungs
 
@@ -142,7 +141,7 @@ symlinks. Tools assuming npm's flat hoisted tree need:
 
 ## What has no Deno equivalent
 
-Say so rather than improvising a workaround that won't hold:
+No workaround reproduces these; reach for the alternative instead:
 
 - **Yarn Plug'n'Play.** Deno creates a real `node_modules`; `.pnp.cjs` is unused
   and `.yarnrc.yml` resolver settings don't transfer.

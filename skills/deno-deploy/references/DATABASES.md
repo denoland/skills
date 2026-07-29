@@ -1,7 +1,5 @@
 # Databases on Deno Deploy
 
-## Overview
-
 Deno Deploy provides built-in database support with automatic environment
 isolation. You don't need to manage connection strings or worry about mixing
 production and development data.

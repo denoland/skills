@@ -9,94 +9,28 @@ metadata:
 
 # Deno Deploy
 
-This skill provides guidance for deploying applications to Deno Deploy.
-
-## Scope Boundaries
-
-This skill applies **only** to Deno Deploy questions. Follow these rules:
-
-- If the user asks about **AWS Lambda, Vercel, Netlify, Google Cloud Run,
-  Docker, Kubernetes, or any other deployment platform**, answer using that
-  platform directly. Do not mention Deno Deploy at all — not as an alternative,
-  not as a comparison, not as a suggestion.
-- If the user asks about **running a local Deno script** (not deploying), answer
-  the local question directly. Do not mention Deno Deploy, deployment, or the
-  `--tunnel` flag.
-- Do not include `deno deploy` commands, Deno KV, or Deno Deploy environment
-  variable configuration in responses about other platforms or local-only
-  scripts.
-- Only discuss Deno Deploy when the user explicitly asks about Deno Deploy or
-  deploying a Deno application to production.
-
-## Important: Use `deno deploy`, NOT `deployctl`
-
-**Always use the `deno deploy` command.** Do NOT use `deployctl`.
-
-- `deployctl` is for Deno Deploy Classic (deprecated)
-- `deno deploy` is the modern, integrated command built into the Deno CLI
-- **Requires Deno >= 2.4.2** - the `deno deploy` subcommand was introduced in
-  Deno 2.4
-
-## When Unsure About CLI Flags
-
-**Always run `--help` before guessing at flags.** The `deno deploy` subcommand
-has many flags, and they change between versions. When you're unsure what a
-command accepts:
-
 ```bash
-# See all subcommands
-deno deploy --help
-
-# See flags for a specific subcommand
-deno deploy create --help
-deno deploy env --help
-deno deploy database --help
+deno deploy --prod
 ```
 
-This takes seconds and prevents repeated trial-and-error failures. Never assume
-a flag exists — check first.
+Use `deno deploy`, not `deployctl` — that is Deno Deploy Classic, and
+deprecated. Needs Deno >= 2.4.2.
 
-## Deployment Workflow
+Flags change between versions, so check `deno deploy --help`,
+`deno deploy create --help`, `deno deploy env --help`, or
+`deno deploy database --help` rather than guessing.
 
-**Always show the core deploy command first** — then explain diagnostic steps.
-When a user asks "how do I deploy?", lead with the actual command
-(`deno deploy --prod`) before covering pre-flight checks and configuration.
+## Deployment workflow
 
-### Step 1: Locate the App Directory
+Run every deploy command from the directory holding `deno.json`. If `deploy.org`
+and `deploy.app` are already in it, `deno task build` (when the framework needs
+it) then `deno deploy --prod` is the whole job.
 
-Before running any deploy commands, find where the Deno app is located:
+### Startup dependencies come first
 
-```bash
-# Check if deno.json exists in current directory
-if [ -f "deno.json" ] || [ -f "deno.jsonc" ]; then
-  echo "APP_DIR: $(pwd)"
-else
-  # Look for deno.json in immediate subdirectories
-  find . -maxdepth 2 -name "deno.json" -o -name "deno.jsonc" 2>/dev/null | head -5
-fi
-```
-
-All deploy commands must run from the app directory.
-
-### Step 2: Pre-Flight Checks
-
-Check Deno version and existing configuration:
-
-```bash
-# Check Deno version (must be >= 2.4.2)
-deno --version | head -1
-
-# Check for existing deploy config
-grep -E '"org"|"app"' deno.json deno.jsonc 2>/dev/null || echo "NO_DEPLOY_CONFIG"
-```
-
-### Step 3: Check for Startup Dependencies
-
-Before deploying, check if the app connects to a database or external service at
-startup (e.g., top-level `await initDb()` in `main.ts`). If it does, the deploy
-will fail during warmup because the database doesn't exist yet.
-
-**If the app has startup database dependencies, follow this order:**
+If the app connects to a database or external service at startup (a top-level
+`await initDb()` in `main.ts`, say), deploying first fails during warmup because
+the database does not exist yet. In that case:
 
 1. **Create the app with `--no-wait`** so a warmup failure doesn't block you:
    ```bash
@@ -118,30 +52,12 @@ will fail during warmup because the database doesn't exist yet.
    deno deploy --prod
    ```
 
-If the app has no startup dependencies, skip this step and deploy normally
-below.
+### When no deploy config exists
 
-### Step 4: Deploy Based on Configuration
+An app must exist before anything can deploy to it. Ask whether the user already
+has one on Deno Deploy or needs a new one.
 
-**If `deploy.org` AND `deploy.app` exist in deno.json:**
-
-```bash
-# Build if needed (Fresh, Astro, etc.)
-deno task build
-
-# Deploy to production
-deno deploy --prod
-```
-
-**If NO deploy config exists:**
-
-**Apps must be created before they can be deployed to.** You cannot run
-`deno deploy --prod` until an app exists.
-
-**IMPORTANT: Ask the user first** - Do they have an existing app on Deno Deploy,
-or do they need to create a new one?
-
-**If they have an existing app**, add the config directly to deno.json:
+**Existing app** — add the config to `deno.json`:
 
 ```json
 {
@@ -152,17 +68,11 @@ or do they need to create a new one?
 }
 ```
 
-The org name is in the Deno Deploy console URL (e.g.,
-`console.deno.com/your-org-name`). Once this config is in place, subsequent
-deploys just need `deno deploy --prod`.
+The org name is in the console URL (`console.deno.com/your-org-name`). After
+that, deploys are just `deno deploy --prod`.
 
-**If they need to create a new app:**
-
-The CLI needs an organization name. Find it at https://console.deno.com - the
-org is in the URL path (e.g., `console.deno.com/your-org-name`).
-
-**Interactive creation** (opens a browser — only works when a human is at the
-keyboard):
+**New app** — interactive creation opens a browser, so it only works with a
+human at the keyboard:
 
 ```bash
 deno deploy create --org <ORG_NAME>
@@ -184,23 +94,9 @@ deno deploy create \
   --region us
 ```
 
-The create command also does the initial deploy. After it completes, `deno.json`
-is updated with `deploy.org` and `deploy.app` automatically. From that point on,
-subsequent deploys only need:
-
-```bash
-deno deploy --prod
-```
-
-After completion, verify the config was saved:
-
-```bash
-grep -E '"org"|"app"' deno.json
-```
-
-**When an AI agent is performing the deployment**, always use the
-non-interactive flow with explicit flags. The interactive flow requires browser
-windows and terminal prompts that agents cannot navigate.
+`create` also performs the initial deploy and writes `deploy.org` and
+`deploy.app` into `deno.json`, after which deploys are just
+`deno deploy --prod`.
 
 ## Core Commands
 
@@ -559,11 +455,9 @@ You can use `--tunnel` with your existing tasks in `deno.json`:
 deno task --tunnel dev
 ```
 
-This runs your `dev` task with the tunnel enabled.
+### What the tunnel provides
 
-### What the Tunnel Provides
-
-Beyond just forwarding requests, the tunnel also:
+Beyond forwarding requests:
 
 - **Syncs environment variables** - Variables set in your Deno Deploy app's
   "Local" context become available to your local process
