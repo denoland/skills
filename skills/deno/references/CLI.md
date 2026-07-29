@@ -7,22 +7,19 @@ feature flags.
 
 ## Execution
 
-| Command                       | Purpose                                                     |
-| ----------------------------- | ----------------------------------------------------------- |
-| `deno run <file>`             | Run a module. `deno <file>` is equivalent.                  |
-| `deno run --watch <file>`     | Restart on file change (replaces nodemon)                   |
-| `deno run --watch-hmr <file>` | Hot-replace modules, restarting only if HMR fails           |
-| `deno serve <file>`           | Run a server from the module's default export               |
-| `deno task <name>`            | Run a task from `deno.json` or a script from `package.json` |
-| `deno repl`                   | Interactive REPL                                            |
-| `deno eval "<code>"`          | Evaluate a string                                           |
+| Command                   | Purpose                                                     |
+| ------------------------- | ----------------------------------------------------------- |
+| `deno run <file>`         | Run a module. `deno <file>` is equivalent.                  |
+| `deno watch <file>`       | Reload on change; alias for `deno run --watch-hmr`          |
+| `deno run --watch <file>` | Restart on file change, without hot replacement             |
+| `deno task <name>`        | Run a task from `deno.json` or a script from `package.json` |
+| `deno repl`               | Interactive REPL                                            |
+| `deno eval "<code>"`      | Evaluate a string                                           |
 
 `deno task` with no argument lists available tasks. Useful flags: `--cwd <dir>`,
 `--filter <name>` (workspace members), `--if-present` (exit 0 when the task is
 missing), `--eval` (treat the argument as an inline task), `-j/--jobs`
 (concurrency).
-
-`deno serve` accepts `--port`, `--host`, `--watch`, and `--parallel`.
 
 ## Dependency management
 
@@ -41,7 +38,7 @@ missing), `--eval` (treat the argument as an inline task), `-j/--jobs`
 | `deno why <pkg>`                    | Explain why a package is in the tree                      |
 | `deno audit`                        | Audit installed dependencies for vulnerabilities          |
 | `deno approve-scripts`              | Approve npm lifecycle scripts                             |
-| `deno link <path>`                  | Link a local JSR package for development                  |
+| `deno link <path>`                  | Link a local JSR or npm package for development           |
 | `deno unlink <path>`                | Undo `deno link`                                          |
 | `deno uninstall`                    | Remove a dependency or global executable                  |
 
@@ -54,9 +51,11 @@ missing), `--eval` (treat the argument as an inline task), `-j/--jobs`
 - `--no-save` — install without writing to the config file
 - `--lockfile-only` — update only the lockfile
 - `--allow-scripts[=<pkg>]` — permit npm lifecycle scripts
-- `--minimum-dependency-age <age>` — refuse packages published more recently
-  than the given age, as a supply-chain attack mitigation. Accepts minutes
-  (`120`), an ISO-8601 duration (`P2D`), or a cutoff date. Unstable.
+- `--min-dep-age <age>` — refuse packages published more recently than the given
+  age, as a supply-chain attack mitigation. **Defaults to one day**, so
+  installing a just-published version needs `--min-dep-age=0`. Accepts minutes
+  (`120`), an ISO-8601 duration (`P2D`), or a cutoff date. Also spelled
+  `--minimum-dependency-age`.
 
 ### deno ci
 
@@ -133,17 +132,17 @@ documentation examples honest.
 
 ## Project setup
 
-| Command                        | Result                              |
-| ------------------------------ | ----------------------------------- |
-| `deno init <dir>`              | Script, test, and `deno.json`       |
-| `deno init --empty <dir>`      | Just `main.ts` and `deno.json`      |
-| `deno init --lib <dir>`        | Library laid out for JSR publishing |
-| `deno init --serve <dir>`      | `deno serve` entry point            |
-| `deno init --npm <name> <dir>` | Run an npm `create-*` initializer   |
-| `deno init --jsr <pkg> <dir>`  | Scaffold from a JSR package         |
+| Command                   | Result                              |
+| ------------------------- | ----------------------------------- |
+| `deno init <dir>`         | Script, test, and `deno.json`       |
+| `deno init --empty <dir>` | Just `main.ts` and `deno.json`      |
+| `deno init --lib <dir>`   | Library laid out for JSR publishing |
+| `deno create <pkg> <dir>` | Scaffold from a package initializer |
 
-`--npm` covers the entire `npm create` ecosystem: `deno init --npm vite`,
-`deno init --npm astro`, and so on.
+`deno create` is the `npm create` / `yarn create` equivalent and covers that
+whole ecosystem: `deno create vite`, `deno create astro`, and so on. Unprefixed
+names are treated as npm packages; `--jsr` selects JSR, and `-y` bypasses the
+prompt and runs with full permissions.
 
 ## Publishing
 
@@ -192,16 +191,12 @@ Every `--allow-*` has a matching `--deny-*`, and a deny always wins.
 
 ## Environment variables
 
-| Variable             | Effect                                                                        |
-| -------------------- | ----------------------------------------------------------------------------- |
-| `DENO_DIR`           | Cache directory                                                               |
-| `DENO_INSTALL_ROOT`  | Where `deno install -g` writes (default `$HOME/.deno`)                        |
-| `DENO_COMPAT`        | Node compatibility mode: extensionless imports, CJS detection, Node built-ins |
-| `DENO_CONDITIONS`    | Extra export conditions for npm resolution                                    |
-| `DENO_JOBS`          | Worker count for `--parallel`                                                 |
-| `DENO_AUTH_TOKENS`   | Bearer tokens for private module hosts                                        |
-| `DENO_CERT`          | Additional CA certificates                                                    |
-| `DENO_KV_DB_MODE`    | Whether `Deno.openKv()` uses disk or memory                                   |
-| `DENO_CACHE_DB_MODE` | Whether the Web Cache uses disk or memory                                     |
+| Variable            | Effect                                                 |
+| ------------------- | ------------------------------------------------------ |
+| `DENO_DIR`          | Cache directory                                        |
+| `DENO_INSTALL_ROOT` | Where `deno install -g` writes (default `$HOME/.deno`) |
+| `DENO_CONDITIONS`   | Extra export conditions for npm resolution             |
+| `DENO_JOBS`         | Worker count for `--parallel`                          |
+| `DENO_CERT`         | Additional CA certificates                             |
 
 `deno --help` lists the full set with descriptions.

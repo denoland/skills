@@ -25,18 +25,13 @@ Tools that assume npm's flat hoisted tree need:
 
 ```json
 {
-  "nodeModulesDir": "manual",
   "nodeModulesLinker": "hoisted"
 }
 ```
 
-`nodeModulesDir` values:
-
-| Value      | Behavior                                                                |
-| ---------- | ----------------------------------------------------------------------- |
-| `"auto"`   | Deno creates and manages `node_modules`                                 |
-| `"manual"` | You manage it, as npm does — the default when `package.json` is present |
-| `"none"`   | Global cache only, no `node_modules` directory                          |
+There is also a `nodeModulesDir` setting, but it only applies to projects with
+no `package.json`. Coming from npm you will have one, so `node_modules` is
+created and managed as npm would and this setting is not one to reach for.
 
 ## Scripts
 

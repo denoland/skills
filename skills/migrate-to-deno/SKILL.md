@@ -1,6 +1,6 @@
 ---
 name: migrate-to-deno
-description: Use when moving a Node.js, npm, Yarn, pnpm, or Bun project to Deno, or when adopting Deno incrementally in an existing JavaScript or TypeScript codebase. Covers using Deno as a drop-in package manager, running existing package.json scripts, CommonJS versus ESM, node_modules layout, lockfile migration, permissions, replacing prettier/eslint/jest/ts-node with the built-in toolchain, and per-tool command equivalents.
+description: Use when moving a Node.js, npm, Yarn, pnpm, or Bun project to Deno, or when adopting Deno incrementally in an existing JavaScript or TypeScript codebase. Covers using Deno as a drop-in package manager, running existing package.json scripts, CommonJS versus ESM, node_modules layout, lockfile migration, permissions, whether to adopt the built-in toolchain, and per-tool command equivalents.
 license: MIT
 metadata:
   author: denoland
@@ -37,9 +37,9 @@ deno install
 ```
 
 This reads `package.json`, resolves the same dependencies, writes
-`node_modules`, and creates `deno.lock` — seeding it from an existing
-`package-lock.json` or `yarn.lock` so pinned versions and integrity hashes carry
-over rather than silently drifting.
+`node_modules`, and creates `deno.lock` — seeding it from whatever lockfile is
+already there (`package-lock.json`, `yarn.lock`, `bun.lock`, or pnpm's) so
+pinned versions and integrity hashes carry over rather than silently drifting.
 
 The app still runs under `node`. Teammates who have not switched are unaffected.
 Commit `deno.lock` once the install is verified.
@@ -68,37 +68,43 @@ deno run --allow-net=api.example.com --allow-read=./config --allow-env=PORT main
 This is the step that buys something Node cannot offer, and it is worth doing
 before deploying rather than after.
 
-### Rung 4 — Adopt the built-in toolchain
+### Rung 4 — Optionally, adopt the built-in toolchain
 
-Drop dependencies and config files in favor of what ships in the binary:
 `deno fmt` for prettier, `deno lint` for eslint, `deno test` for jest or vitest,
-`deno check` for tsc, `deno run --watch` for nodemon, `deno compile` for pkg.
+`deno check` for tsc, `deno watch` for nodemon, `deno compile` for pkg.
 
-This is the largest diff and the least urgent. Do it last, one tool at a time.
+**This rung is optional, and for an existing project usually not worth it.** The
+built-in tools are not drop-in replacements — feature parity is not complete, so
+this is a real migration with real work, not a config change. A project that is
+happy with prettier, eslint, and vitest should keep them and use Deno as the
+runtime and package manager only.
+
+Prefer the built-in tools for new projects, where there is no existing setup to
+port. If you do move an existing project, go one tool at a time.
 
 ## Command equivalents
 
-| Task          | npm                 | Yarn                        | pnpm                       | Bun                             | Deno                    |
-| ------------- | ------------------- | --------------------------- | -------------------------- | ------------------------------- | ----------------------- |
-| Install all   | `npm install`       | `yarn install`              | `pnpm install`             | `bun install`                   | `deno install`          |
-| Add           | `npm i <p>`         | `yarn add <p>`              | `pnpm add <p>`             | `bun add <p>`                   | `deno add <p>`          |
-| Add dev       | `npm i -D <p>`      | `yarn add -D <p>`           | `pnpm add -D <p>`          | `bun add -d <p>`                | `deno add -D <p>`       |
-| Remove        | `npm uninstall <p>` | `yarn remove <p>`           | `pnpm remove <p>`          | `bun remove <p>`                | `deno remove <p>`       |
-| CI install    | `npm ci`            | `yarn install --immutable`† | `pnpm i --frozen-lockfile` | `bun install --frozen-lockfile` | `deno ci`               |
-| Run script    | `npm run <s>`       | `yarn <s>`                  | `pnpm <s>`                 | `bun run <s>`                   | `deno task <s>`         |
-| Run binary    | `npx <p>`           | `yarn dlx <p>`              | `pnpm dlx <p>`             | `bunx <p>`                      | `dx <p>`                |
-| Outdated      | `npm outdated`      | `yarn outdated`‡            | `pnpm outdated`            | `bun outdated`                  | `deno outdated`         |
-| Audit         | `npm audit`         | `yarn npm audit`†           | `pnpm audit`               | `bun audit`                     | `deno audit`            |
-| Why           | `npm ls <p>`        | `yarn why <p>`              | `pnpm why <p>`             | `bun why <p>`                   | `deno why <p>`          |
-| Run a file    | `node f.js`         |                             |                            | `bun f.ts`                      | `deno f.ts`             |
-| Run TS        | `ts-node f.ts`      |                             |                            | `bun f.ts`                      | `deno f.ts`             |
-| Watch         | `nodemon f.js`      |                             |                            | `bun --watch f.ts`              | `deno run --watch f.ts` |
-| Format        | prettier            |                             |                            | prettier                        | `deno fmt`              |
-| Lint          | eslint              |                             |                            |                                 | `deno lint`             |
-| Test          | jest, vitest        |                             |                            | `bun test`                      | `deno test`             |
-| Coverage      | nyc, c8             |                             |                            |                                 | `deno coverage`         |
-| Type-check    | `tsc --noEmit`      |                             |                            | `tsc`                           | `deno check`            |
-| Bundle binary | pkg, nexe           |                             |                            | `bun build --compile`           | `deno compile`          |
+| Task          | npm                 | Yarn                        | pnpm                       | Bun                             | Deno              |
+| ------------- | ------------------- | --------------------------- | -------------------------- | ------------------------------- | ----------------- |
+| Install all   | `npm install`       | `yarn install`              | `pnpm install`             | `bun install`                   | `deno install`    |
+| Add           | `npm i <p>`         | `yarn add <p>`              | `pnpm add <p>`             | `bun add <p>`                   | `deno add <p>`    |
+| Add dev       | `npm i -D <p>`      | `yarn add -D <p>`           | `pnpm add -D <p>`          | `bun add -d <p>`                | `deno add -D <p>` |
+| Remove        | `npm uninstall <p>` | `yarn remove <p>`           | `pnpm remove <p>`          | `bun remove <p>`                | `deno remove <p>` |
+| CI install    | `npm ci`            | `yarn install --immutable`† | `pnpm i --frozen-lockfile` | `bun install --frozen-lockfile` | `deno ci`         |
+| Run script    | `npm run <s>`       | `yarn <s>`                  | `pnpm <s>`                 | `bun run <s>`                   | `deno task <s>`   |
+| Run binary    | `npx <p>`           | `yarn dlx <p>`              | `pnpm dlx <p>`             | `bunx <p>`                      | `dx <p>`          |
+| Outdated      | `npm outdated`      | `yarn outdated`‡            | `pnpm outdated`            | `bun outdated`                  | `deno outdated`   |
+| Audit         | `npm audit`         | `yarn npm audit`†           | `pnpm audit`               | `bun audit`                     | `deno audit`      |
+| Why           | `npm ls <p>`        | `yarn why <p>`              | `pnpm why <p>`             | `bun why <p>`                   | `deno why <p>`    |
+| Run a file    | `node f.js`         |                             |                            | `bun f.ts`                      | `deno f.ts`       |
+| Run TS        | `ts-node f.ts`      |                             |                            | `bun f.ts`                      | `deno f.ts`       |
+| Watch         | `nodemon f.js`      |                             |                            | `bun --watch f.ts`              | `deno watch f.ts` |
+| Format        | prettier            |                             |                            | prettier                        | `deno fmt`        |
+| Lint          | eslint              |                             |                            |                                 | `deno lint`       |
+| Test          | jest, vitest        |                             |                            | `bun test`                      | `deno test`       |
+| Coverage      | nyc, c8             |                             |                            |                                 | `deno coverage`   |
+| Type-check    | `tsc --noEmit`      |                             |                            | `tsc`                           | `deno check`      |
+| Bundle binary | pkg, nexe           |                             |                            | `bun build --compile`           | `deno compile`    |
 
 † Yarn Berry (v2+) spelling. Yarn Classic (v1) uses
 `yarn install --frozen-lockfile` and `yarn audit`.
@@ -106,7 +112,8 @@ This is the largest diff and the least urgent. Do it last, one tool at a time.
 ‡ Yarn Classic only — Berry removed `yarn outdated`.
 
 `dx` is a separate binary installed alongside Deno, and an alias for `deno x`.
-It does not appear in the top-level `deno --help` output.
+It does not appear in the top-level `deno --help` output. Like `npx`, it runs
+the package with the sandbox disabled.
 
 ## The four things that actually break
 
@@ -147,7 +154,6 @@ hoisted tree need:
 
 ```json
 {
-  "nodeModulesDir": "manual",
   "nodeModulesLinker": "hoisted"
 }
 ```

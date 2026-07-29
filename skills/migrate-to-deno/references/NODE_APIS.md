@@ -12,8 +12,9 @@ import { createServer } from "node:http";
 import { DatabaseSync } from "node:sqlite";
 ```
 
-The prefix is required in Deno-native code. Bare `import fs from "fs"` works
-only in compatibility mode (below) or when resolving inside an npm package.
+Bare specifiers work too — `import fs from "fs"` resolves the same built-in, so
+existing Node imports do not need rewriting. The `node:` prefix is clearer about
+intent and is worth preferring in new code, but it is not required.
 
 Coverage is broad but not total, and a few modules are partial. Check the
 per-module status table before assuming a specific API is present:
@@ -48,16 +49,16 @@ const require = createRequire(import.meta.url);
 ## DENO_COMPAT
 
 Setting `DENO_COMPAT=1` turns on Node compatibility mode: extensionless imports,
-bare Node built-in specifiers without the `node:` prefix, CommonJS detection,
-and related loosening of Deno's stricter defaults.
+CommonJS detection, and related loosening of Deno's stricter defaults. Bare Node
+built-in specifiers do not need it — those resolve either way.
 
 ```bash
 DENO_COMPAT=1 deno run -A main.js
 ```
 
 This is a migration aid, useful for getting a large legacy codebase running
-before cleaning it up. It is not the recommended end state — explicit `node:`
-prefixes and extensioned imports are clearer and work without the env var.
+before cleaning it up. It is not the recommended end state — extensioned imports
+are clearer and work without the env var.
 
 If extensionless imports are the only thing standing in the way,
 `--sloppy-imports` is the narrower fix and leaves the rest of Deno's defaults
@@ -95,19 +96,22 @@ remove the need for it entirely.
 
 ## tsconfig.json
 
-Deno does not read `tsconfig.json`. Compiler options go under `compilerOptions`
-in `deno.json`, with a smaller supported set — options controlling emit and
-module resolution are fixed by the runtime and are not configurable.
+Deno reads `tsconfig.json`, so an existing one keeps working and is the right
+place to leave compiler options — `tsc` and editors then see the same settings
+Deno does.
 
 ```json
 {
   "compilerOptions": {
     "strict": true,
-    "lib": ["deno.window", "dom"],
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   }
 }
 ```
 
-Mapping reference: <https://docs.deno.com/runtime/fundamentals/configuration/>
+`deno.json` also accepts a `compilerOptions` field, but prefer `tsconfig.json`
+when the project has one. Either way, options controlling emit and module
+resolution are fixed by the runtime and are not configurable.
+
+Reference: <https://docs.deno.com/runtime/fundamentals/configuration/>

@@ -11,22 +11,22 @@ translated. Everything that stays on Web and Node APIs moves unchanged.
 
 ## Commands
 
-| Bun                   | Deno                      |
-| --------------------- | ------------------------- |
-| `bun install`         | `deno install`            |
-| `bun add <pkg>`       | `deno add <pkg>`          |
-| `bun add -d <pkg>`    | `deno add -D <pkg>`       |
-| `bun remove <pkg>`    | `deno remove <pkg>`       |
-| `bun run <script>`    | `deno task <script>`      |
-| `bun <file>`          | `deno <file>`             |
-| `bunx <pkg>`          | `dx <pkg>`                |
-| `bun test`            | `deno test`               |
-| `bun build --compile` | `deno compile`            |
-| `bun outdated`        | `deno outdated`           |
-| `bun audit`           | `deno audit`              |
-| `bun why <pkg>`       | `deno why <pkg>`          |
-| `bun ci`              | `deno ci`                 |
-| `bun --watch <file>`  | `deno run --watch <file>` |
+| Bun                   | Deno                 |
+| --------------------- | -------------------- |
+| `bun install`         | `deno install`       |
+| `bun add <pkg>`       | `deno add <pkg>`     |
+| `bun add -d <pkg>`    | `deno add -D <pkg>`  |
+| `bun remove <pkg>`    | `deno remove <pkg>`  |
+| `bun run <script>`    | `deno task <script>` |
+| `bun <file>`          | `deno <file>`        |
+| `bunx <pkg>`          | `dx <pkg>`           |
+| `bun test`            | `deno test`          |
+| `bun build --compile` | `deno compile`       |
+| `bun outdated`        | `deno outdated`      |
+| `bun audit`           | `deno audit`         |
+| `bun why <pkg>`       | `deno why <pkg>`     |
+| `bun ci`              | `deno ci`            |
+| `bun --watch <file>`  | `deno watch <file>`  |
 
 ## API translation
 
