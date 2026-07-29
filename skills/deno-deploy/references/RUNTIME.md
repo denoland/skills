@@ -1,7 +1,5 @@
 # Deno Deploy Runtime
 
-## Overview
-
 Deno Deploy uses the standard Deno runtime. You can use JSR and NPM packages,
 filesystem operations, network requests, subprocesses, and FFI/native addons.
 

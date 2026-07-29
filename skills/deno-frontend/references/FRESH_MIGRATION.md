@@ -47,9 +47,9 @@ If it misses anything, check by hand:
 | `basePath`                         | `ctx.config.basePath`             |
 | data passed through `ctx.render()` | handler returns `{ data: {...} }` |
 
-The last one is the most common error. `ctx.render()` takes JSX, never a data
-object — a handler passes data by returning `{ data: {...} }`, and the page
-picks it up with `define.page<typeof handler>`. See `FRESH.md`.
+`ctx.render()` takes JSX, never a data object. A handler passes data by
+returning `{ data: {...} }`, and the page picks it up with
+`define.page<typeof handler>`. See `FRESH.md`.
 
 ## Alpha releases (2.0.0-alpha.\*)
 

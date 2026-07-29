@@ -24,15 +24,15 @@ deno install
 deno task dev
 ```
 
-`deno create` is `npm create`. `deno install` reads `package.json`.
-`deno task <script>` runs `package.json` scripts. That is the whole difference.
+`deno create` is `npm create`, `deno install` reads `package.json`, and
+`deno task <script>` runs `package.json` scripts.
 
 **Follow the framework's own documentation for everything else** — routing,
 components, data loading, and config are the framework's concern, not Deno's.
 Don't invent Deno-flavoured variants of their APIs, and don't reach for Fresh
 patterns in a React or Svelte project.
 
-The only things worth knowing:
+Deno-specific caveats:
 
 - Some frameworks need `"nodeModulesDir": "auto"` in `deno.json`; Next.js does.
 - Permissions apply to the dev server too — framework tasks generally want `-A`.
@@ -66,7 +66,7 @@ export default function Counter() {
 }
 ```
 
-Three rules carry most of the weight:
+Rules:
 
 1. Islands ship JavaScript — keep them small, leave everything else in
    `components/`.
