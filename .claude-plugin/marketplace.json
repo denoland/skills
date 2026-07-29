@@ -7,8 +7,8 @@
     {
       "name": "deno-skills",
       "source": "./",
-      "description": "Modern Deno development knowledge including JSR packages, Fresh framework, Deno Deploy, and best practices",
-      "version": "1.3.2"
+      "description": "Modern Deno development knowledge: dependency management, npm and JSR packages, permissions, the built-in toolchain, migrating from Node/npm/yarn/pnpm/bun, Fresh, and Deno Deploy",
+      "version": "2.0.0"
     }
   ]
 }

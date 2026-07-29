@@ -5,26 +5,34 @@ your AI assistant how to build Deno applications using current best practices.
 
 ## Skills
 
-| Skill                      | Description                                          |
-| -------------------------- | ---------------------------------------------------- |
-| **deno-guidance**          | Core Deno best practices, JSR packages, CLI commands |
-| **deno-deploy**            | Deployment workflows for Deno Deploy                 |
-| **deno-frontend**          | Fresh framework, Preact components, Tailwind CSS     |
-| **deno-sandbox**           | Safe code execution with @deno/sandbox               |
-| **deno-project-templates** | Project scaffolding templates                        |
-| **deno-expert**            | Code review and debugging principles                 |
+| Skill               | Description                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| **deno**            | Core skill: dependency management, permissions, `deno.json`, the built-in toolchain, publishing |
+| **migrate-to-deno** | Moving a Node, npm, Yarn, pnpm, or Bun project to Deno                                          |
+| **deno-deploy**     | Deployment workflows for Deno Deploy                                                            |
+| **deno-frontend**   | Fresh framework, Preact components, Tailwind CSS                                                |
+| **deno-sandbox**    | Safe code execution with @deno/sandbox                                                          |
+
+Targets Deno 2.9+.
+
+### Changed in 2.0
+
+`deno-guidance`, `deno-expert`, and `deno-project-templates` have been merged
+into the single **deno** skill. Their content overlapped heavily, and project
+scaffolding is now handled by `deno init` rather than by pasted templates. If
+you installed any of the three individually, install `deno` instead.
 
 ## Key Principles
 
-These skills enforce modern Deno practices:
-
-1. **JSR over deno.land/x** - Always use `jsr:` imports; `deno.land/x` is
-   deprecated
-2. **npm: as fallback** - Use `npm:` packages when no JSR alternative exists
-3. **Built-in tools** - Encourage `deno fmt`, `deno lint`, `deno test`,
-   `deno doc`
-4. **Fresh patterns** - Island architecture with small, serializable-prop
-   islands
+1. **Deno works like npm and bun** - `deno install` reads `package.json`,
+   `deno add express` installs from npm, `node_modules` and `node:` built-ins
+   work. Migration is not a rewrite.
+2. **npm and JSR both work** - use whichever has the package you need; JSR is a
+   good default for new Deno-first code and the standard library (`@std/*`).
+3. **Built-in tools** - `deno fmt`, `deno lint`, `deno test`, `deno check`
+   replace prettier, eslint, jest, and tsc with no dependencies.
+4. **Permissions are the real difference** - prefer scoped grants like
+   `--allow-net=example.com` over `-A`.
 
 ## Versioning
 
@@ -73,7 +81,19 @@ These skills follow the
 /plugin install deno-skills@denoland-skills
 ```
 
-**Option 2: Manual installation**
+**Option 2: `npx skills`**
+
+Works across Claude Code, Cursor, Copilot, and other skills-compatible agents:
+
+```bash
+# All skills
+npx skills add denoland/skills
+
+# Or just one
+npx skills add denoland/skills --skill deno
+```
+
+**Option 3: Manual installation**
 
 Copy the skills you want to use:
 
@@ -82,7 +102,7 @@ Copy the skills you want to use:
 git clone https://github.com/denoland/skills.git /tmp/deno-skills
 
 # Copy individual skills to your personal skills directory
-cp -r /tmp/deno-skills/skills/deno-guidance ~/.claude/skills/
+cp -r /tmp/deno-skills/skills/deno ~/.claude/skills/
 cp -r /tmp/deno-skills/skills/deno-deploy ~/.claude/skills/
 # ... or copy all skills
 cp -r /tmp/deno-skills/skills/* ~/.claude/skills/

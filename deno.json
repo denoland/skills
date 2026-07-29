@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "verify": "deno run -A scripts/verify_skills.ts",
+    "check": "deno fmt --check && deno lint && deno task verify"
+  },
+  "imports": {
+    "@std/fs": "jsr:@std/fs@^1",
+    "@std/path": "jsr:@std/path@^1"
+  }
+}
