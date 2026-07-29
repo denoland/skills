@@ -2,8 +2,7 @@
 
 ## node: built-ins
 
-Deno implements the Node standard library under the `node:` prefix. Import with
-the prefix explicitly:
+Deno implements the Node standard library under the `node:` prefix:
 
 ```ts
 import fs from "node:fs/promises";
@@ -16,12 +15,12 @@ Bare specifiers work too — `import fs from "fs"` resolves the same built-in, s
 existing Node imports do not need rewriting. The `node:` prefix is clearer about
 intent and is worth preferring in new code, but it is not required.
 
-Coverage is broad but not total, and a few modules are partial. Check the
-per-module status table before assuming a specific API is present:
+Coverage is broad but not total, and some modules are partial. Check the
+per-module status table before assuming an API is present:
 <https://docs.deno.com/runtime/reference/node_apis/>
 
-`node:sqlite` deserves a mention on its own — it removes the need for a native
-addon dependency, which is often the single hardest thing to migrate.
+`node:sqlite` is worth singling out: it removes a native addon dependency, often
+the hardest thing to migrate.
 
 ## CommonJS vs ESM
 
@@ -35,9 +34,8 @@ Which parser applies is decided per file:
 
 With no `package.json`, `.js` and `.ts` are ESM.
 
-`ReferenceError: require is not defined` means a file containing CommonJS is
-being parsed as ESM. Fix by setting `"type": "commonjs"` in `package.json`, or
-by renaming the file to `.cjs`.
+`ReferenceError: require is not defined` means CommonJS is being parsed as ESM.
+Set `"type": "commonjs"` in `package.json`, or rename the file to `.cjs`.
 
 To use `require` from within an ES module:
 
@@ -56,13 +54,11 @@ built-in specifiers do not need it — those resolve either way.
 DENO_COMPAT=1 deno run -A main.js
 ```
 
-This is a migration aid, useful for getting a large legacy codebase running
-before cleaning it up. It is not the recommended end state — extensioned imports
-are clearer and work without the env var.
+A migration aid for getting a large legacy codebase running before cleaning it
+up, not a recommended end state — extensioned imports work without the env var.
 
-If extensionless imports are the only thing standing in the way,
-`--sloppy-imports` is the narrower fix and leaves the rest of Deno's defaults
-intact:
+If extensionless imports are the only blocker, `--sloppy-imports` is the
+narrower fix and leaves the rest of Deno's defaults intact:
 
 ```bash
 deno run --sloppy-imports -A main.js
@@ -73,32 +69,29 @@ deno run --sloppy-imports -A main.js
 Node globals available in Deno: `process`, `Buffer`, `global`, `__dirname` and
 `__filename` (in CommonJS context), `setImmediate`, `clearImmediate`.
 
-Deno also provides the Web platform globals — `fetch`, `Request`, `Response`,
-`URL`, `crypto`, `structuredClone`, `WebSocket`, `EventTarget` — which modern
-Node also has, so code written against Web APIs is the most portable.
+Web platform globals — `fetch`, `Request`, `Response`, `URL`, `crypto`,
+`structuredClone`, `WebSocket`, `EventTarget` — are present too, and modern Node
+has them, so Web-API code is the most portable.
 
-`process.env` works and requires `--allow-env`, the same as `Deno.env.get()`.
+`process.env` works and needs `--allow-env`, same as `Deno.env.get()`.
 
 ## Native addons
 
-Packages with native addons need their lifecycle scripts approved before they
-build:
+Native addons need their lifecycle scripts approved before they build:
 
 ```bash
 deno approve-scripts
 deno install --allow-scripts=npm:better-sqlite3
 ```
 
-Node-API (N-API) addons are supported. Older `nan`-based addons and packages
-compiling against V8 internals may not work; check whether the package offers a
-prebuilt or WASM alternative, or whether `node:sqlite` and other built-ins
-remove the need for it entirely.
+Node-API (N-API) addons are supported. Older `nan`-based addons and anything
+compiling against V8 internals may not work; look for a prebuilt or WASM
+alternative, or check whether a built-in like `node:sqlite` removes the need.
 
 ## tsconfig.json
 
 Deno reads `tsconfig.json`, so an existing one keeps working and is the right
-place to leave compiler options — `tsc` and editors then see the same settings
-Deno does.
+place for compiler options — `tsc` and editors then see what Deno sees.
 
 ```json
 {
@@ -110,8 +103,8 @@ Deno does.
 }
 ```
 
-`deno.json` also accepts a `compilerOptions` field, but prefer `tsconfig.json`
-when the project has one. Either way, options controlling emit and module
-resolution are fixed by the runtime and are not configurable.
+`deno.json` also accepts `compilerOptions`, but prefer `tsconfig.json` when the
+project has one. Either way, emit and module-resolution options are fixed by the
+runtime.
 
 Reference: <https://docs.deno.com/runtime/fundamentals/configuration/>

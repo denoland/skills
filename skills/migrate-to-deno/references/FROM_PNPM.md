@@ -1,12 +1,11 @@
 # Migrating from pnpm
 
-pnpm is a package manager, not a runtime, so most of what moves is
-configuration. A single-package pnpm project usually needs no changes at all —
-Deno reads the existing `package.json`, installs the same dependencies, and runs
-the same scripts.
+pnpm is a package manager, not a runtime, so what moves is configuration. A
+single-package pnpm project usually needs no changes — Deno reads the existing
+`package.json`, installs the same dependencies, and runs the same scripts.
 
-Deno's default `node_modules` layout is isolated and symlink-based, the same
-design pnpm uses, so the strictness guarantees pnpm users rely on carry over.
+Deno's `node_modules` layout is isolated and symlink-based, the same design pnpm
+uses, so the strictness guarantees pnpm users rely on carry over.
 
 ## Commands
 
@@ -42,30 +41,28 @@ becomes
 { "workspace": ["packages/*", "apps/*"] }
 ```
 
-Two limitations to check before assuming a clean conversion:
-
-- **No recursive globs.** Depth is explicit — `packages/*` works, `packages/**`
-  does not.
-- **No exclusions.** pnpm's `!packages/legacy` negation has no equivalent; list
-  the members explicitly instead.
+Two limitations before assuming a clean conversion: depth is explicit
+(`packages/*` works, `packages/**` does not), and there are no exclusions —
+pnpm's `!packages/legacy` negation has no equivalent, so list members
+explicitly.
 
 ## Catalogs
 
-Deno supports pnpm's `catalog:` protocol. Catalog definitions move into the root
-configuration under the same field names, and dependencies keep referring to
-them as `"catalog:"` / `"catalog:<name>"`.
+Deno supports pnpm's `catalog:` protocol. Definitions move into the root config
+under the same field names; dependencies keep referring to them as `"catalog:"`
+/ `"catalog:<name>"`.
 
 ## No equivalent
 
-- **`overrides`** — pin through an import map entry in `deno.json` instead.
-- **`patchedDependencies`** — vendor the dependency or maintain a fork.
+- **`overrides`** — pin through an import map entry instead.
+- **`patchedDependencies`** — vendor or fork.
 - **Registry and resolver tuning** in `.npmrc` — store, side-effects cache, and
-  hoisting-pattern settings do not transfer.
+  hoisting settings don't transfer.
 
 ## Lifecycle scripts
 
-pnpm also blocks these by default, so the concept is familiar. The Deno
-equivalent of `pnpm approve-builds` is:
+pnpm blocks these too, so the concept is familiar. The equivalent of
+`pnpm approve-builds`:
 
 ```bash
 deno approve-scripts

@@ -1,8 +1,8 @@
 # Migrating from Yarn
 
-Yarn is a package manager, not a runtime, so most of the migration is
-configuration rather than code. Deno reads the existing `package.json`, installs
-the same dependencies, and runs the same scripts.
+Yarn is a package manager, not a runtime, so the migration is configuration
+rather than code. Deno reads the existing `package.json`, installs the same
+dependencies, and runs the same scripts.
 
 ## Commands
 
@@ -28,18 +28,16 @@ Deno has one spelling regardless of which the project came from:
 
 ## Plug'n'Play — the main incompatibility
 
-Deno does not implement PnP. It creates a conventional `node_modules` directory.
-Consequences:
+Deno does not implement PnP; it creates a conventional `node_modules`.
 
 - `.pnp.cjs` and `.pnp.loader.mjs` become unused. Delete them once migrated.
 - `.yarnrc.yml` resolver settings (`nodeLinker`, `pnpMode`, registry mirrors) do
   not transfer.
 - `yarn patch` has no equivalent. Vendor the dependency or maintain a fork.
 
-If the project relies on PnP's strictness to catch undeclared dependencies,
-Deno's default isolated `node_modules` layout provides similar protection: real
-files live in `node_modules/.deno/` and are exposed through symlinks, so a
-package cannot import something it never declared.
+If the project relied on PnP's strictness to catch undeclared dependencies,
+Deno's isolated layout gives similar protection: real files in
+`node_modules/.deno/`, exposed through symlinks.
 
 ## Lockfiles
 
@@ -50,13 +48,12 @@ package cannot import something it never declared.
 
 ## Workspaces
 
-`package.json` `"workspaces": ["packages/*"]` works unchanged. Members reference
-each other through the workspace protocol with no conversion.
+`"workspaces": ["packages/*"]` works unchanged; members reference each other
+through the workspace protocol with no conversion.
 
 ## resolutions
 
-Yarn's `resolutions` field is not supported. Pin through an import map entry in
-`deno.json` instead:
+`resolutions` is not supported. Pin through an import map entry instead:
 
 ```json
 {
@@ -68,5 +65,5 @@ Yarn's `resolutions` field is not supported. Pin through an import map entry in
 
 ## Lifecycle scripts
 
-Deno does not run them by default. Approve per package with
-`deno approve-scripts` or `deno install --allow-scripts=npm:<pkg>`.
+Don't run by default. Approve per package with `deno approve-scripts` or
+`deno install --allow-scripts=npm:<pkg>`.

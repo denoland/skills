@@ -14,21 +14,19 @@ skill.
 
 ## Most Node projects already run under Deno
 
-Start from this fact rather than from a rewrite plan. Deno reads an existing
-`package.json`, resolves the same npm packages from the same registry, writes a
-real `node_modules` directory, runs the same scripts, and supports `node:`
-built-ins. TypeScript runs with no build step.
+Deno reads an existing `package.json`, resolves the same npm packages, writes a
+real `node_modules`, runs the same scripts, and supports `node:` built-ins.
+TypeScript runs with no build step.
 
-There is usually **no code to change**. What changes is which binary you invoke.
+There is usually **no code to change** — only which binary you invoke. Don't
+start by rewriting imports to `jsr:`, swapping dependencies for Deno-specific
+ones, or restructuring directories. Proposing that is the most common way this
+goes wrong.
 
-Do not begin a migration by rewriting imports to `jsr:` specifiers, replacing
-dependencies with Deno-specific equivalents, or restructuring directories. None
-of that is required, and proposing it is the most common way this goes wrong.
+## Migrate in rungs
 
-## Migrate in rungs, not in one jump
-
-Each rung is independently useful, and each is reversible. Stop at whichever one
-suits the project — plenty of teams stop at rung 1 and are happy.
+Each rung is independently useful and reversible. Stop wherever suits the
+project; plenty of teams stop at rung 1.
 
 ### Rung 1 — Deno as the package manager only
 
@@ -36,15 +34,14 @@ suits the project — plenty of teams stop at rung 1 and are happy.
 deno install
 ```
 
-This reads `package.json`, resolves the same dependencies, writes
-`node_modules`, and creates `deno.lock` — seeding it from whatever lockfile is
-already there (`package-lock.json`, `yarn.lock`, `bun.lock`, or pnpm's) so
-pinned versions and integrity hashes carry over rather than silently drifting.
+Reads `package.json`, resolves the same dependencies, writes `node_modules`, and
+creates `deno.lock` — seeded from any existing `package-lock.json`, `yarn.lock`,
+`bun.lock`, or pnpm lockfile, so pins and integrity hashes carry over instead of
+drifting.
 
-The app still runs under `node`. Teammates who have not switched are unaffected.
-Commit `deno.lock` once the install is verified.
-
-**To back out:** delete `deno.lock` and `node_modules`, run `npm install`.
+The app still runs under `node`; teammates are unaffected. Commit `deno.lock`
+once verified. **To back out:** delete `deno.lock` and `node_modules`, then
+`npm install`.
 
 ### Rung 2 — Run it with Deno
 
@@ -53,34 +50,30 @@ deno run -A main.js      # or: deno -A main.js
 deno task build          # runs scripts.build from package.json
 ```
 
-Use `-A` at this stage. The goal is to confirm the program works, not to design
-a permission policy; introducing both changes at once makes failures ambiguous.
+Use `-A` here. The goal is confirming the program works, not designing a
+permission policy — changing both at once makes failures ambiguous.
 
 ### Rung 3 — Tighten permissions
 
-Replace `-A` with the narrowest set that works. Run the program, read what it
-asks for, grant exactly that.
+Replace `-A` with the narrowest set that works: run it, read what it asks for,
+grant exactly that.
 
 ```bash
 deno run --allow-net=api.example.com --allow-read=./config --allow-env=PORT main.js
 ```
 
-This is the step that buys something Node cannot offer, and it is worth doing
-before deploying rather than after.
+This buys something Node cannot offer, and is worth doing before deploying.
 
 ### Rung 4 — Optionally, adopt the built-in toolchain
 
 `deno fmt` for prettier, `deno lint` for eslint, `deno test` for jest or vitest,
 `deno check` for tsc, `deno watch` for nodemon, `deno compile` for pkg.
 
-**This rung is optional, and for an existing project usually not worth it.** The
-built-in tools are not drop-in replacements — feature parity is not complete, so
-this is a real migration with real work, not a config change. A project that is
-happy with prettier, eslint, and vitest should keep them and use Deno as the
-runtime and package manager only.
-
-Prefer the built-in tools for new projects, where there is no existing setup to
-port. If you do move an existing project, go one tool at a time.
+**Optional, and usually not worth it for an existing project.** These are not
+drop-in replacements; parity is incomplete, so this is a real migration, not a
+config change. A project happy with prettier, eslint, and vitest should keep
+them and use Deno as runtime and package manager only. Prefer the built-in tools
+for new projects. If you do move an existing one, go a tool at a time.
 
 ## Command equivalents
 
@@ -117,64 +110,48 @@ the package with the sandbox disabled.
 
 ## The four things that actually break
 
-Everything else is usually incidental. These four cover most real failures.
-
 ### `Requires net access to "..."` (or read, env, run)
 
-Deno grants nothing by default. Add the specific permission, or `-A` while you
-are still establishing that the program works at all.
+Deno grants nothing by default. Add that specific permission, or `-A` while
+still establishing the program works at all.
 
 ### `ReferenceError: require is not defined`
 
-The file is being treated as ESM but contains CommonJS. Resolution rules:
+A file containing CommonJS is being parsed as ESM. `.cjs` is always CommonJS,
+`.mjs` always ESM; `.js` and `.ts` follow `"type"` in the nearest
+`package.json`. For a CommonJS project, set `"type": "commonjs"`.
 
-- `.cjs` is always CommonJS.
-- `.mjs` is always ESM.
-- `.js` and `.ts` follow the `"type"` field of the nearest `package.json`.
+### A dependency is broken, or `postinstall` never ran
 
-For an existing CommonJS project, set `"type": "commonjs"` in `package.json`.
-
-### A dependency is installed but broken, or a `postinstall` never ran
-
-Deno does not run npm lifecycle scripts by default. Packages with native addons
-notice immediately.
+Lifecycle scripts don't run by default. Native addons notice immediately.
+Approvals are recorded in the config file, so this is one-time:
 
 ```bash
 deno approve-scripts                              # interactive picker
 deno install --allow-scripts=npm:better-sqlite3   # or name them directly
 ```
 
-Approvals are recorded in the config file, so this is a one-time step.
-
 ### A tool cannot find files inside `node_modules`
 
-Deno's default layout is isolated and pnpm-style: real files in
-`node_modules/.deno/`, exposed via symlinks. Tools that assume npm's flat
-hoisted tree need:
+Deno's layout is pnpm-style: real files in `node_modules/.deno/`, exposed via
+symlinks. Tools assuming npm's flat hoisted tree need:
 
 ```json
-{
-  "nodeModulesLinker": "hoisted"
-}
+{ "nodeModulesLinker": "hoisted" }
 ```
 
 ## What has no Deno equivalent
 
-Say so directly rather than improvising a workaround that will not hold:
+Say so rather than improvising a workaround that won't hold:
 
-- **Yarn Plug'n'Play.** Deno creates a real `node_modules`. `.pnp.cjs` is unused
-  and `.yarnrc.yml` resolver settings do not transfer.
-- **`yarn patch` / pnpm patched dependencies.** Vendor the dependency or
-  maintain a fork.
-- **`package.json` `overrides` / `resolutions`.** Use an import map entry to pin
-  the version instead.
-- **Registry and resolver tuning** in `.npmrc` / `.yarnrc.yml` /
-  `pnpm-workspace.yaml` beyond workspace globs.
-- **Bun-specific build features** — macros, HTMLRewriter, HTML entrypoints.
+- **Yarn Plug'n'Play.** Deno creates a real `node_modules`; `.pnp.cjs` is unused
+  and `.yarnrc.yml` resolver settings don't transfer.
+- **`yarn patch` / pnpm patched dependencies.** Vendor or fork.
+- **`overrides` / `resolutions`.** Pin via an import map entry instead.
+- **Registry and resolver tuning** in `.npmrc` / `.yarnrc.yml`.
+- **Bun build features** — macros, HTMLRewriter, HTML entrypoints.
 
 ## Per-tool details
-
-Load the relevant file for specifics beyond the table above:
 
 - `references/FROM_NPM.md` — lockfile seeding, `node_modules` layout, overrides
 - `references/FROM_YARN.md` — Plug'n'Play, Berry vs Classic, workspaces

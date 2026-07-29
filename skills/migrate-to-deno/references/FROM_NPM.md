@@ -1,27 +1,22 @@
 # Migrating from npm
 
-Deno reads `package.json` directly. In most cases you point Deno at an existing
-npm project and it works.
+Deno reads `package.json` directly; in most cases pointing it at an existing npm
+project just works.
 
 ## Lockfile
 
 The first `deno install` seeds `deno.lock` from `package-lock.json`, carrying
-over pinned versions and integrity hashes. Dependencies are not silently
-upgraded during the switch.
+over pins and integrity hashes — nothing is silently upgraded.
 
-`deno.lock` coexists with `package-lock.json`. Teammates still on npm are
-unaffected until they choose to switch, so this can land as a normal PR rather
-than a flag day. Commit `deno.lock` once verified.
-
-To back out: delete `deno.lock` and `node_modules`, run `npm install`.
+`deno.lock` coexists with `package-lock.json`, so teammates on npm are
+unaffected and this lands as a normal PR, not a flag day. Commit `deno.lock`
+once verified. To back out: delete it and `node_modules`, run `npm install`.
 
 ## node_modules
 
-Deno's default layout is isolated, like pnpm's: real files live in
-`node_modules/.deno/`, exposed through symlinks. This prevents packages from
-importing dependencies they never declared.
-
-Tools that assume npm's flat hoisted tree need:
+Deno's layout is isolated like pnpm's: real files in `node_modules/.deno/`,
+exposed through symlinks, so packages can't import undeclared dependencies.
+Tools assuming npm's flat hoisted tree need:
 
 ```json
 {
@@ -35,10 +30,8 @@ created and managed as npm would and this setting is not one to reach for.
 
 ## Scripts
 
-`package.json` `scripts` run with `deno task <name>`. No conversion needed.
-
-Deno does not run lifecycle scripts (`postinstall` and friends) automatically.
-Approve per package:
+`package.json` `scripts` run with `deno task <name>`, no conversion needed.
+Lifecycle scripts (`postinstall`) don't run automatically; approve per package:
 
 ```bash
 deno approve-scripts
@@ -47,8 +40,7 @@ deno install --allow-scripts=npm:better-sqlite3
 
 ## overrides
 
-`package.json` `overrides` is not supported. Pin the version through an import
-map entry in `deno.json` instead:
+`overrides` is not supported. Pin through an import map entry in `deno.json`:
 
 ```json
 {
@@ -60,18 +52,17 @@ map entry in `deno.json` instead:
 
 ## Workspaces
 
-`package.json` `"workspaces"` is honored as-is. Deno also accepts its own
-`"workspace"` array in `deno.json`. Members are listed explicitly or by
-single-level glob; recursive `**` globs and negation are not supported.
+`"workspaces"` is honored as-is. Deno also accepts its own `"workspace"` array
+in `deno.json`; members are explicit or single-level globs, with no `**` or
+negation.
 
 ## CI
 
-Replace `npm ci` with `deno ci`. It requires `deno.lock`, removes any existing
-`node_modules`, installs strictly from the lockfile, and fails if the lockfile
-is out of date with the config file.
+Replace `npm ci` with `deno ci`: it requires `deno.lock`, removes any existing
+`node_modules`, installs strictly from the lockfile, and fails if it is stale.
 
 ```bash
 deno ci --prod    # skip devDependencies
 ```
 
-Do not use `deno install` in CI — it will happily update the lockfile.
+Don't use `deno install` in CI — it will happily update the lockfile.

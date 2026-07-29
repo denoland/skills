@@ -1,13 +1,11 @@
 # Migrating from Bun
 
-Most Bun projects are ordinary `package.json` + TypeScript projects, and Deno
-runs those directly: it reads `package.json`, installs the same npm
-dependencies, runs TypeScript with no build step, and ships a comparable
+Most Bun projects are ordinary `package.json` + TypeScript projects, which Deno
+runs directly: same npm dependencies, TypeScript with no build step, comparable
 built-in toolchain.
 
-Bun is the one migration in this set that involves real **code** changes rather
-than only configuration, because code that calls `Bun.*` APIs has to be
-translated. Everything that stays on Web and Node APIs moves unchanged.
+Bun is the one migration here involving real **code** changes, because `Bun.*`
+API calls have to be translated. Anything on Web and Node APIs moves unchanged.
 
 ## Commands
 
@@ -34,8 +32,8 @@ translated. Everything that stays on Web and Node APIs moves unchanged.
 
 Both take a fetch-style handler receiving a `Request` and returning a
 `Response`, but the shapes differ: `Bun.serve` takes one options object with a
-`fetch` property, while `Deno.serve` takes the handler as a separate argument.
-Passing `fetch` inside the options object to `Deno.serve` throws.
+`fetch` property; `Deno.serve` takes the handler as a separate argument. Passing
+`fetch` in the options object to `Deno.serve` throws.
 
 ```ts no-check
 // Bun
@@ -54,8 +52,8 @@ Deno.serve({ port: 3000 }, (req) => new Response("hi"));
 
 ### bun:sqlite → node:sqlite
 
-Deno ships the synchronous `node:sqlite` built-in. The prepare/run/get/all
-workflow is the same; the class names differ.
+Deno ships the synchronous `node:sqlite` built-in — same prepare/run/get/all
+workflow, different class names.
 
 ```ts
 import { DatabaseSync } from "node:sqlite";
@@ -68,7 +66,7 @@ stmt.run("x");
 
 ### Bun.file → Deno file APIs
 
-`Bun.file()` returns a lazy reference. Deno reads eagerly or opens a handle:
+`Bun.file()` returns a lazy reference; Deno reads eagerly or opens a handle:
 
 ```ts
 const text = await Deno.readTextFile("./data.json"); // whole file
@@ -76,13 +74,13 @@ const bytes = await Deno.readFile("./image.png");
 using file = await Deno.open("./big.log"); // streaming
 ```
 
-`Deno.open` returns a handle with a `.readable` stream, which is the closest
-analogue to `Bun.file().stream()`.
+`Deno.open` returns a handle with a `.readable` stream, the closest analogue to
+`Bun.file().stream()`.
 
 ### bun:test → deno test or node:test
 
-`deno test` uses `Deno.test()`, and also understands `node:test`. If the suite
-already uses `describe`/`it`, `node:test` plus `node:assert` is the smaller
+`deno test` uses `Deno.test()` but also understands `node:test`. For a suite
+already using `describe`/`it`, `node:test` plus `node:assert` is the smaller
 diff:
 
 ```ts
@@ -98,8 +96,8 @@ For new tests, `Deno.test()` with `jsr:@std/assert` is the idiomatic form.
 
 ### Bun.$ → dax or Deno.Command
 
-For template-literal shell syntax, add `jsr:@david/dax`. For direct subprocess
-control without a dependency, use `Deno.Command`:
+For template-literal shell syntax add `jsr:@david/dax`; for subprocess control
+without a dependency use `Deno.Command`:
 
 ```ts
 const { stdout } = await new Deno.Command("git", {
@@ -121,20 +119,18 @@ Note that subprocesses need `--allow-run`.
 
 ## Configuration
 
-`bunfig.toml` has no direct counterpart; its contents move into `deno.json`:
-tasks, formatter and linter settings, compiler options, and the import map. See
-the `deno` skill for the full config shape.
+`bunfig.toml` has no counterpart; its contents move into `deno.json` (tasks,
+formatter and linter settings) or `tsconfig.json` (compiler options). See the
+`deno` skill.
 
 ## No equivalent
 
-- **Macros** (`with { type: "macro" }`) — compile-time execution has no Deno
-  counterpart.
+- **Macros** (`with { type: "macro" }`) — no counterpart.
 - **HTMLRewriter** — use a JSR or npm HTML parser.
-- **HTML entrypoints and Bun's bundler-specific features** — use Vite, or
+- **HTML entrypoints and bundler-specific features** — use Vite, or
   `deno compile` for a standalone binary.
 
 ## Permissions
 
-The behavioral difference that will surface first: Bun grants unrestricted
-access, Deno grants nothing by default. Use `-A` while confirming the program
-works, then narrow to specific `--allow-*` flags.
+The difference that surfaces first: Bun grants unrestricted access, Deno
+nothing. Use `-A` while confirming the program works, then narrow.
